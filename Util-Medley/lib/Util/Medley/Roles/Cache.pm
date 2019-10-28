@@ -8,299 +8,579 @@ use Data::Printer alias => 'pdump';
 
 ########################################################
 
-has cache_enabled => (
-    is      => 'rw',
-    isa     => 'Bool',
-    lazy    => 1,
-    builder => '_build_cache_enabled',
+=head1 NAME
+
+Util::Medley::Roles::Cache
+
+Moose Role for simple caching. 
+
+=cut
+
+########################################################
+
+our $VERSION = 0.001;
+
+#=head1 VERSION 
+
+#0.001
+
+#=cut
+
+########################################################
+
+=head1 SYNOPSIS
+
+  $self->cacheSet(namespace => 'unittest', 
+                  cache_key => 'test1', 
+                  data      => { foo => 'bar' });
+
+  my $data = $self->cacheGet(namespace => 'unittest', 
+                             cache_key => 'test1');
+
+  my @keys = $self->cacheGetKeys(namespace => 'unittest');
+
+  $self->cacheDelete(namespace => 'unittest', 
+                     cache_key => 'test1');
+
+=cut
+
+########################################################
+
+=head1 DESCRIPTION
+
+This role provides a thin wrapper around CHI.  The caching has 2 levels:
+ 
+=over
+
+=item * level 1 (memory)
+
+=item * level 2 (disk)
+
+=back
+
+When fetching from the cache, level 1 (L1) is always checked first.  If the
+requested object is not found, it searches the level 2 (L2) cache.
+
+The cached data can be an object, reference, or string.
+
+All methods confess on error.
+
+=cut
+
+########################################################
+
+=head1 ATTRIBUTES
+
+=head2 cacheRootDir (optional)
+
+Location of the L2 file cache.  
+
+Default: $HOME/.util-medley/cache
+
+=cut
+
+has cacheRootDir => (
+	is      => 'ro',
+	isa     => 'Str',
+	lazy    => 1,
+	builder => '_buildCacheRootDir'
 );
 
-has cache_l1_enabled => (
-    is      => 'rw',
-    isa     => 'Bool',
-    lazy    => 1,
-    builder => '_build_cache_l1_enabled',
+=head2 cacheEnabled (optional)
+
+Toggles caching on or off.
+
+Default: 1
+
+=cut
+
+has cacheEnabled => (
+	is      => 'rw',
+	isa     => 'Bool',
+	lazy    => 1,
+	builder => '_buildCacheEnabled',
 );
 
-has cache_l2_enabled => (
-    is      => 'rw',
-    isa     => 'Bool',
-    lazy    => 1,
-    builder => '_build_cache_l2_enabled',
+=head2 cacheExpireSecs (optional)
+
+Sets the cache expiration.  
+
+Default: 0 (never)
+
+Env Var: MEDLEY_CACHE_DISABLED
+
+=cut
+
+has cacheExpireSecs => (
+
+	# zero = never
+	is      => 'rw',
+	isa     => 'Int',
+	default => 0,
 );
 
-has cache_root_dir => (
-    is      => 'ro',
-    isa     => 'Str',
-    lazy    => 1,
-    builder => '_build_cache_root_dir'
+=head2 cacheNamespace (optional)
+
+Sets the cache namespace.  
+
+=cut
+
+has cacheNamespace => (
+	is      => 'rw',
+	isa     => 'Str',
 );
 
-has cache_expire_secs => (
+=head2 cacheL1Enabled (optional)
 
-    # zero = never
-    is      => 'rw',
-    isa     => 'Int',
-    default => 0,
+Toggles the L1 cache on or off.
+
+Default: 1
+
+Env Var: MEDLEY_CACHE_L1_DISABLED
+
+=cut
+
+has cacheL1Enabled => (
+	is      => 'rw',
+	isa     => 'Bool',
+	lazy    => 1,
+	builder => '_buildCacheL1Enabled',
+);
+
+=head2 cacheL2Enabled (optional) 
+
+Toggles the L2 cache on or off.
+
+Default: 1
+
+Env Var: MEDLEY_CACHE_L2_DISABLED
+
+=cut
+
+has cacheL2Enabled => (
+	is      => 'rw',
+	isa     => 'Bool',
+	lazy    => 1,
+	builder => '_buildCacheL2Enabled',
 );
 
 #########################################################3
 
-has _chi_objects => (
-    is      => 'rw',
-    isa     => 'HashRef',
-    default => sub { {} }
+has _chiObjects => (
+	is      => 'rw',
+	isa     => 'HashRef',
+	default => sub { {} }
 );
 
-has _l1_cache => (
-    is      => 'rw',
-    isa     => 'HashRef',
-    default => sub { {} }
+has _l1Cache => (
+	is      => 'rw',
+	isa     => 'HashRef',
+	default => sub { {} }
 );
 
 ##################
 # public methods #
 ##################
 
-method cache_get (Str :$namespace!,
-                  Str :$cache_key!) {
+=head1 METHODS
 
-    if ( $self->cache_l1_enabled ) {
-        my $data = $self->_cache_l1_get(@_);
-        if ($data) {
-            return $data;
-        }
-    }
+=head2 cacheClear
 
-    if ( $self->cache_l2_enabled ) {
-        my $data = $self->_cache_l2_get(@_);
-        if ($data) {
-            $self->_cache_l1_set( namespace => $namespace, cache_key => $cache_key, data => $data );
-            return $data;
-        }
-    }
+Clears all cache for a given namespace.
+
+=head3 optional args
+
+=over
+
+=item * namespace:  The cache namespace.  
+
+=back
+
+=cut
+
+method cacheClear (Str :$namespace) { 
+	
+	$self->_cacheL1Clear(@_);
+	$self->_cacheL2Clear(@_);
+
+	return 1;
 }
 
-method cache_delete (Str :$namespace!,
-                     Str :$cache_key) {
+=head2 cacheDelete
 
-    if (!$cache_key) {
-        my $dir = $self->_cache_get_namespace_dir($namespace);
-                        
-    }
-    else {
-    $self->_cache_l1_delete(@_) if $self->cache_l1_enabled;
-    $self->_cache_l2_delete(@_) if $self->cache_l1_enabled;
-    }
+Deletes a cache object.
+
+=head3 required args
+
+=over
+
+=item * cache_key:  Unique identifier of the cache object.
+
+=back
+
+=head3 optional args
+
+=over
+
+=item * namespace:  The cache namespace.  
+
+=back
+
+=cut
+
+method cacheDelete (Str :$cache_key!,
+                    Str :$namespace) {
+
+	$self->_cacheL1Delete(@_) if $self->cacheL1Enabled;
+	$self->_cacheL2Delete(@_) if $self->cacheL1Enabled;
+
+	return 1;
 }
 
-method cache_set (Str :$namespace!,
-                  Str :$cache_key!,
-                  Any :$data) {
+=head2 cacheGet
 
-    $self->_cache_l1_set(@_) if $self->cache_l1_enabled;
-    $self->_cache_l2_set(@_) if $self->cache_l2_enabled;
+Gets a unique cache object.  Returns undef if not found.
+
+=head3 required args
+
+=over
+
+=item * cache_key:  Unique identifier of the cache object.
+
+=back
+
+=head3 optional args
+
+=over
+
+=item * namespace:  The cache namespace.  
+
+=back
+
+=cut
+
+method cacheGet (Str :$namespace,
+                 Str :$cache_key!) {
+
+	if ( $self->cacheL1Enabled ) {
+		my $data = $self->_cacheL1Get(@_);
+		if ($data) {
+			return $data;
+		}
+	}
+
+	if ( $self->cacheL2Enabled ) {
+		my $data = $self->_cacheL2Get(@_);
+		if ($data) {
+			$self->_cacheL1Set(
+				cache_key => $cache_key,
+				data      => $data
+			);
+			
+			return $data;
+		}
+	}
 }
 
-method cache_get_keys (Str :$namespace!) {
+=head2 cacheSet
 
-    if ( $self->cache_l2_enabled ) {
-        return $self->_cache_l2_get_keys(@_);
-    }
+Commits the data 1an object to the Gets a unique cache object.  Returns undef if not found.
 
-    if ( $self->cache_l1_enabled ) {
-        return $self->_cache_l1_get_keys(@_);
-    }
+=head3 required args
+
+=over
+
+=item * cache_key:  Unique identifier of the cache object.
+
+=item * data:  An object, reference, or string.
+
+=back
+
+=head3 optional args
+
+=over
+
+=item * namespace:  The cache namespace.  
+
+=back
+
+=cut
+
+method cacheSet (Str :$cache_key!,
+                 Any :$data!,
+                 Str :$namespace) {
+
+	$self->_cacheL1Set(@_) if $self->cacheL1Enabled;
+	$self->_cacheL2Set(@_) if $self->cacheL2Enabled;
+
+	return 1;
+}
+
+=head2 cacheGetKeys
+
+Returns a list of cache keys.
+
+=head3 optional args
+
+=over
+
+=item * namespace:  The cache namespace.  
+
+=back
+
+=cut
+
+method cacheGetKeys (Str :$namespace) {
+
+	if ( $self->cacheL2Enabled ) {
+		return $self->_cacheL2GetKeys(@_);
+	}
+
+	if ( $self->cacheL1Enabled ) {
+		return $self->_cacheL1GetKeys(@_);
+	}
 }
 
 ###################
 # private methods #
 ###################
 
-method _cache_get_chi_object (Str :$namespace) {
+method _cacheGetChiObject (Str :$namespace) {
 
-    my $href = $self->_chi_objects;
+	$namespace = $self->_getNamespace($namespace);	
 
-    if ( exists $href->{$namespace} ) {
-        return $href->{$namespace};
-    }
+	my $href = $self->_chiObjects;
 
-    my %params = (
-        driver    => 'File',
-        root_dir  => $self->cache_root_dir,
-        namespace => $namespace,
-    );
+	if ( exists $href->{$namespace} ) {
+		return $href->{$namespace};
+	}
 
-    my $chi = CHI->new(%params);
-    $href->{$namespace} = $chi;
-    $self->_chi_objects($href);
+	my %params = (
+		driver    => 'File',
+		root_dir  => $self->cacheRootDir,
+		namespace => $namespace,
+	);
 
-    return $chi;
+	my $chi = CHI->new(%params);
+	$href->{$namespace} = $chi;
+	$self->_chiObjects($href);
+
+	return $chi;
 }
 
 ######################################################################
 
-method _build_cache_l1_enabled {
+method _buildCacheL1Enabled {
 
-    if ( $self->cache_enabled ) {
-        if ( !$ENV{MEDLEY_CACHE_L1_DISABLED} ) {
-            return 1;
-        }
-    }
+	if ( $self->cacheEnabled ) {
+		if ( !$ENV{MEDLEY_CACHE_L1_DISABLED} ) {
+			return 1;
+		}
+	}
 
-    return 0;
+	return 0;
 }
 
-method _build_cache_l2_enabled {
+method _buildCacheL2Enabled {
 
-    if ( $self->cache_enabled ) {
-        if ( !$ENV{MEDLEY_CACHE_L2_DISABLED} ) {
-            return 1;
-        }
-    }
+	if ( $self->cacheEnabled ) {
+		if ( !$ENV{MEDLEY_CACHE_L2_DISABLED} ) {
+			return 1;
+		}
+	}
 
-    return 0;
+	return 0;
 }
 
-method _build_cache_root_dir {
+method _buildCacheRootDir {
 
-    if ( defined $ENV{HOME} ) {
-        return "$ENV{HOME}/.chi";
-    }
+	if ( defined $ENV{HOME} ) {
+		return "$ENV{HOME}/.chi";
+	}
 
-    confess "unable to determine HOME env var";
+	confess "unable to determine HOME env var";
 }
 
-method _cache_get_namespace_dir (Str $ns!) {
-    
-    return sprintf "%s/%s", $self->cache_root_dir, $ns;
+method _cacheGetNamespaceDir (Str $namespace) {
+
+	$namespace = $self->_getNamespace($namespace);	
+
+	return sprintf "%s/%s", $self->cacheRootDir, $namespace;
 }
 
-method _build_cache_enabled {
+method _buildCacheEnabled {
 
-    if ( $ENV{MEDLEY_CACHE_DISABLED} ) {
-        return 0;
-    }
+	if ( $ENV{MEDLEY_CACHE_DISABLED} ) {
+		return 0;
+	}
 
-    return 1;
+	return 1;
 }
 
-method _cache_l1_get (Str :$namespace!,
-                      Str :$cache_key!) {
+method _cacheL1Get (Str :$namespace,
+                    Str :$cache_key!) {
 
-    $self->_cache_l1_expire(@_);
+	$namespace = $self->_getNamespace($namespace);	
 
-    my $l1 = $self->_l1_cache;
-    if ( $l1->{$namespace}->{$cache_key}->{data} ) {
-        return $l1->{$namespace}->{$cache_key}->{data};
-    }
+	$self->_cacheL1Expire(@_);
 
-    return;
+	my $l1 = $self->_l1Cache;
+	if ( $l1->{$namespace}->{$cache_key}->{data} ) {
+		return $l1->{$namespace}->{$cache_key}->{data};
+	}
+
+	return;
 }
 
-method _cache_l1_expire ( Str :$namespace!,
-                          Str :$cache_key! ) {
+method _cacheL1Expire (Str :$namespace,
+                       Str :$cache_key!) {
 
-    my $l1 = $self->_l1_cache;
+	$namespace = $self->_getNamespace($namespace);	
 
-    if ( $l1->{$namespace}->{$cache_key} ) {
-        my $href = $l1->{$namespace}->{$cache_key};
+	my $l1 = $self->_l1Cache;
 
-        if ( $href->{expire_epoch} ) {    # zero or undef = never
+	if ( $l1->{$namespace}->{$cache_key} ) {
+		my $href = $l1->{$namespace}->{$cache_key};
 
-            if ( time() > $href->{expire_epoch} ) {
-                $self->_cache_l1_delete(@_);
-            }
-        }
-        else {
-            # zero or undef = never
-        }
-    }
+		if ( $href->{expire_epoch} ) {    # zero or undef = never
 
-    return;
+			if ( time() > $href->{expire_epoch} ) {
+				$self->_cacheL1Delete(@_);
+			}
+		}
+		else {
+			# zero or undef = never
+		}
+	}
+
+	return;
 }
 
-method _cache_l1_delete (Str :$namespace!,
-                         Str :$cache_key!) {
+method _cacheL1Delete (Str :$namespace,
+                       Str :$cache_key!) {
 
-    my $l1 = $self->_l1_cache;
-    if ( $l1->{$namespace}->{$cache_key} ) {
-        delete $l1->{$namespace}->{$cache_key};
-    }
+	$namespace = $self->_getNamespace($namespace);	
 
-    return;
+	my $l1 = $self->_l1Cache;
+	if ( $l1->{$namespace}->{$cache_key} ) {
+		delete $l1->{$namespace}->{$cache_key};
+	}
+
+	return;
 }
 
-method _cache_l1_set (Str :$namespace!,
-                      Str :$cache_key!,
-                      Any :$data!) {
+method _cacheL1Clear (Str :$namespace) {
 
-    my $node = {
-        data         => $data,
-        expire_epoch => 0,
-    };
+	$namespace = $self->_getNamespace($namespace);	
 
-    if ( $self->cache_expire_secs ) {    # defined and greater than zero
-        $node->{expire_epoch} = time + int( $self->cache_expire_secs );
-    }
-
-    my $l1 = $self->_l1_cache;
-    $l1->{$namespace}->{$cache_key} = $node;
-
-    return;
+	my $l1 = $self->_l1Cache;
+	$l1->{$namespace} = {};
 }
 
-method _cache_l1_get_keys (Str :$namespace!) {
+method _cacheL2Clear (Str :$namespace) {
 
-    my $l1 = $self->_l1_cache;
-    if ( $l1 and $l1->{$namespace} ) {
-        return keys %{ $l1->{$namespace} };
-    }
+	$namespace = $self->_getNamespace($namespace);	
+
+	my $chi = $self->_cacheGetChiObject( namespace => $namespace );
+	$chi->clear;
 }
 
-method _cache_get_expire_secs_for_chi {
+method _cacheL1Set (Str :$namespace,
+                    Str :$cache_key!,
+                    Any :$data!) {
 
-    if ( $self->cache_expire_secs ) {    # defined and > 0
-        return $self->cache_expire_secs;
-    }
+	$namespace = $self->_getNamespace($namespace);	
 
-    return 'never';
+	my $node = {
+		data         => $data,
+		expire_epoch => 0,
+	};
+
+	if ( $self->cacheExpireSecs ) {    # defined and greater than zero
+		$node->{expire_epoch} = time + int( $self->cacheExpireSecs );
+	}
+
+	my $l1 = $self->_l1Cache;
+	$l1->{$namespace}->{$cache_key} = $node;
+
+	return;
 }
 
-method _cache_l2_set (Str :$namespace!,
-                      Str :$cache_key!,
-                      Any :$data!) {
+method _cacheL1GetKeys (Str :$namespace) {
 
-    my $chi = $self->_cache_get_chi_object( namespace => $namespace );
-    return $chi->set( $cache_key, $data, $self->_cache_get_expire_secs_for_chi );
+	$namespace = $self->_getNamespace($namespace);	
+
+	my $l1 = $self->_l1Cache;
+	if ( $l1 and $l1->{$namespace} ) {
+		return keys %{ $l1->{$namespace} };
+	}
 }
 
-method _cache_l2_delete (Str :$namespace!,
-                         Str :$cache_key) {
+method _cacheGetExpireSecsForChi {
 
-    my $chi = $self->_cache_get_chi_object( namespace => $namespace );
-    $chi->expire($cache_key);
+	if ( $self->cacheExpireSecs ) {    # defined and > 0
+		return $self->cacheExpireSecs;
+	}
 
-    return;
+	return 'never';
 }
 
-method _cache_l2_get (Str :$namespace!,
-                      Str :$cache_key) {
+method _cacheL2Set (Str :$namespace,
+                    Str :$cache_key!,
+                    Any :$data!) {
 
-    my $chi = $self->_cache_get_chi_object( namespace => $namespace );
-    return $chi->get($cache_key);
+	$namespace = $self->_getNamespace($namespace);	
+
+	my $chi = $self->_cacheGetChiObject( namespace => $namespace );
+	
+	return $chi->set( $cache_key, $data, $self->_cacheGetExpireSecsForChi );
 }
 
-method _cache_l2_get_keys (Str :$namespace!) {
+method _cacheL2Delete (Str :$namespace,
+                       Str :$cache_key) {
 
-    my @keys;
+	$namespace = $self->_getNamespace($namespace);	
 
-    my $chi = $self->_cache_get_chi_object( namespace => $namespace );
-    if ($chi) {
-        @keys = $chi->get_keys;
-    }
+	my $chi = $self->_cacheGetChiObject( namespace => $namespace );
+	$chi->expire($cache_key);
 
-    return @keys;
+	return;
+}
+
+method _cacheL2Get (Str :$namespace,
+                    Str :$cache_key) {
+
+	$namespace = $self->_getNamespace($namespace);	
+
+	my $chi = $self->_cacheGetChiObject( namespace => $namespace );
+	return $chi->get($cache_key);
+}
+
+method _cacheL2GetKeys (Str :$namespace) {
+
+	$namespace = $self->_getNamespace($namespace);	
+
+	my @keys;
+
+	my $chi = $self->_cacheGetChiObject( namespace => $namespace );
+	if ($chi) {
+		@keys = $chi->get_keys;
+	}
+
+	return @keys;
+}
+
+method _getNamespace (Str|Undef $namespace) {
+
+	if (!$namespace) {
+		if (!$self->cacheNamespace) {	
+			confess "must provide namespace";	
+		}
+		
+		$namespace = $self->cacheNamespace;
+	}
+	
+	return $namespace;	
 }
 
 1;
