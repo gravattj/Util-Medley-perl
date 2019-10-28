@@ -18,16 +18,6 @@ Moose Role for simple caching.
 
 ########################################################
 
-our $VERSION = 0.001;
-
-#=head1 VERSION 
-
-#0.001
-
-#=cut
-
-########################################################
-
 =head1 SYNOPSIS
 
   $self->cacheSet(namespace => 'unittest', 
