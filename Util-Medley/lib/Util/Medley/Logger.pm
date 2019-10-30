@@ -7,7 +7,8 @@ use namespace::autoclean;
 use Carp;
 use Data::Printer alias => 'pdump';
 use File::Path 'make_path';
-use Util::Medley::DateTime;
+
+with 'Util::Medley::Roles::Attributes::DateTime';
 
 =head1 NAME
 
@@ -38,7 +39,7 @@ A simple logging class.  By default all logs are written to stderr.
 
 #########################################################################################
 
-use constant LOG_LEVELS => 'fatal', 'error', 'warn', 'info', 'verbose', 'debug';
+use constant LOG_LEVELS => 'debug', 'verbose', 'info', 'warn', 'error', 'fatal';
 use constant LOG_LEVEL_DEFAULT  => 'info';
 use constant LOG_DETAIL_DEFAULT => 3;
 use constant LOG_DETAIL_MIN     => 1;
@@ -117,12 +118,12 @@ Indicates what level of log detail you want.
 
 Levels (in order of severity):
 
-  - fatal
-  - error
-  - warn
-  - info
-  - verbose
   - debug
+  - verbose
+  - info
+  - warn
+  - error
+  - fatal
 
 Default: info
 
@@ -143,6 +144,8 @@ has logLevel => (
 	builder => '_getLogLevel',
 );
 
+#########################################################################################
+
 =head2 disable_stderr (optional)
 
 If provided and true, will disable logging messages to stderr.  You should use
@@ -157,12 +160,6 @@ has disable_stderr => (
 );
 
 #########################################################################################
-
-has _datetime => (
-	is => 'rw',
-	isa => 'Util::Medley::DateTime',
-	default => sub { Util::Medley::Datetime->new },
-);
 
 has _fh => (
 	is => 'rw',
@@ -190,7 +187,7 @@ Writes a fatal message to the log and exits with 1.
 method fatal (Str $msg) {
 
 	my $type = 'fatal';
-
+	
 	my $line = $self->_assembleMsg(
 		type => $type,
 		msg  => $msg,
@@ -210,13 +207,18 @@ method error (Str $msg) {
 
 	my $type = 'error';
 
-	my $line = $self->_assembleMsg(
-		type => $type,
-		msg  => $msg,
-	);
+	if ( $self->_isLogLevelEnabled($type) ) {
 
-	$self->_printMsg($line);
-	return 1;
+		my $line = $self->_assembleMsg(
+			type => $type,
+			msg  => $msg,
+		);
+
+		$self->_printMsg($line);
+		return 1;
+	}
+
+	return 0;
 }
 
 =head2 warn($msg)
@@ -300,14 +302,14 @@ Writes a debug message to the log.
 method debug (Str $msg) {
 
 	my $type = 'debug';
-
+	
 	if ( $self->_isLogLevelEnabled($type) ) {
-
+		
 		my $line = $self->_assembleMsg(
 			type => $type,
 			msg  => $msg,
 		);
-
+		
 		$self->_printMsg($line);
 		return 1;
 	}
@@ -340,6 +342,17 @@ method deprecated (Str $orig, Str $new) {
 	return 0;
 }
 
+=head2 getLogLevels
+
+Returns an array of all possible levels in severity order.
+
+=cut
+
+method getLogLevels {
+	
+	return LOG_LEVELS();
+}
+
 ######################################################################
 
 method _printMsg (Str $line) {
@@ -360,28 +373,23 @@ method _assembleMsg (Str :$type!,
 	my $frames = $self->logFrames;
 	my $detail = $self->logDetail;
 	my @msg;
-
-	# detail 2
+	
 	if ( $detail > 1 ) {
 		push @msg, uc "[$type]";
 	}
 
-	# detail 3
 	if ( $detail > 2 ) {
-		push @msg, sprintf '[%s]', $self->_datetime->localdatetime();
+		push @msg, sprintf '[%s]', $self->DateTime->localdatetime();
 	}
 
-	# detail 4
 	if ( $detail > 3 ) {
 		push @msg, sprintf '[%d]', $$;
 	}
 
-	# detail 5
 	if ( $detail > 4 ) {
 		push @msg, sprintf '[%s]', ( caller($frames) )[3];
 	}
 
-	# detail 6
 	if ( $detail > 5 ) {
 		push @msg, sprintf '[line %d]', ( caller($frames) )[2];
 	}
@@ -455,8 +463,8 @@ method _isLogLevelEnabled (Str $level) {
 
 	my $cutoff = $self->_logLevelToInt( $self->logLevel );
 	my $want   = $self->_logLevelToInt($level);
-
-	if ( $cutoff >= $want ) {
+	
+	if ( $cutoff <= $want ) {
 		return 1;
 	}
 
@@ -464,8 +472,12 @@ method _isLogLevelEnabled (Str $level) {
 }
 
 method _logLevelToInt (Str $level) {
-
-	return $self->_logLevel_map->{$level};
+	
+	if(defined $self->_logLevel_map->{$level} ) {
+		 return $self->_logLevel_map->{$level}	
+	}
+	
+	confess "unknown log level: $level";
 }
 
 method _getLogFrames {

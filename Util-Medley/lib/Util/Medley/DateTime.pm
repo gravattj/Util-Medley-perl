@@ -26,8 +26,8 @@ Util::Medley::DateTime - Class with various datetime methods.
 =head1 DESCRIPTION
 
 A small datetime library.  This doesn't do any calculations itself, but 
-provides some simple methods to call for getting the date/time in a commonly
-used format.
+provides some simple methods to call for getting the date/time in commonly
+used formats.
 
 =cut
 

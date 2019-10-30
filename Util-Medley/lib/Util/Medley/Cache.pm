@@ -65,7 +65,11 @@ All methods confess on error.
 
 Location of the L2 file cache.  
 
-Default: $HOME/.util-medley/cache
+=over
+
+=item default: $HOME/.util-medley/cache
+
+=back
 
 =cut
 
@@ -80,7 +84,11 @@ has rootDir => (
 
 Toggles caching on or off.
 
-Default: 1
+=over
+
+=item default: 1
+
+=back
 
 =cut
 
@@ -154,7 +162,7 @@ has l2Enabled => (
 	builder => '_buildL2Enabled',
 );
 
-#########################################################3
+##########################################################
 
 has _chiObjects => (
 	is      => 'rw',
@@ -168,21 +176,23 @@ has _l1Cache => (
 	default => sub { {} }
 );
 
-##################
-# public methods #
-##################
+##########################################################
 
 =head1 METHODS
 
-=head2 clear
+=head2 clear 
 
 Clears all cache for a given namespace.
 
-=head3 optional args
+=head3 usage:
+
+ clear( [ namespace => $ns ] )
+
+=head3 args:
 
 =over
 
-=item * namespace:  The cache namespace.  
+=item * namespace: The cache namespace.
 
 =back
 
@@ -196,30 +206,31 @@ method clear (Str :$namespace) {
 	return 1;
 }
 
-=head2 delete
+=head2 delete 
 
 Deletes a cache object.
 
-=head3 required args
+=head3 usage:
+
+ delete(
+      key       => <string>,
+    [ namespace => <string> ]
+ )
+  
+=head3 args:
 
 =over
 
-=item * key:  Unique identifier of the cache object.
+=item * key: Unique identifier of the cache object.
 
-=back
-
-=head3 optional args
-
-=over
-
-=item * namespace:  The cache namespace.  
+=item * namespace: The cache namespace.
 
 =back
 
 =cut
 
 method delete (Str :$key!,
-                    Str :$namespace) {
+               Str :$namespace) {
 
 	$self->_l1Delete(@_) if $self->l1Enabled;
 	$self->_l2Delete(@_) if $self->l1Enabled;
@@ -231,11 +242,15 @@ method delete (Str :$key!,
 
 Deletes L1 cache and removes L2 from disk completely.
 
-=head3 optional args
+=head3 usage:
+
+ destroy( [namespace => $ns] )
+  
+=head3 args:
 
 =over
 
-=item * namespace:  The cache namespace.  
+=item * namespace: The cache namespace.  
 
 =back
 
@@ -253,19 +268,20 @@ method destroy (Str :$namespace) {
 
 Gets a unique cache object.  Returns undef if not found.
 
-=head3 required args
+=head3 usage:
+
+ get(
+      key       => $key,
+    [ namespace => $ns ]
+ )
+ 
+=head3 args:
 
 =over
 
-=item * key:  Unique identifier of the cache object.
+=item * key: Unique identifier of the cache object.
 
-=back
-
-=head3 optional args
-
-=over
-
-=item * namespace:  The cache namespace.  
+=item * namespace: The cache namespace.  
 
 =back
 
@@ -294,11 +310,15 @@ method get (Str :$namespace,
 
 Gets the L2 cache dir.
 
-=head3 optional args
+=head3 usage:
+
+ getNamespaceDir( [ namespace => $ns ] )
+ 
+=head3 args:
 
 =over
 
-=item * namespace:  The cache namespace.  
+=item * namespace: The cache namespace.  
 
 =back
 
@@ -315,31 +335,33 @@ method getNamespaceDir (Str $namespace?) {
 
 =head2 set
 
-Commits the data 1an object to the Gets a unique cache object.  Returns undef if not found.
+Commits the data object to the cache.
 
-=head3 required args
+=head3 usage:
 
-=over
-
-=item * key:  Unique identifier of the cache object.
-
-=item * data:  An object, reference, or string.
-
-=back
-
-=head3 optional args
+ set(
+      key       => $key,
+      data      => $data,
+    [ namespace => $ns ],
+ )
+   
+=head3 args:
 
 =over
 
-=item * namespace:  The cache namespace.  
+=item * key: Unique identifier of the cache object.
+
+=item * data: An object, reference, or string.
+
+=item * namespace: The cache namespace.  
 
 =back
 
 =cut
 
 method set (Str :$key!,
-                 Any :$data!,
-                 Str :$namespace) {
+            Any :$data!,
+            Str :$namespace) {
 
 	$self->_l1Set(@_) if $self->l1Enabled;
 	$self->_l2Set(@_) if $self->l2Enabled;
@@ -351,11 +373,15 @@ method set (Str :$key!,
 
 Returns a list of cache keys.
 
-=head3 optional args
+=head3 usage:
+
+ getKeys( [ namespace => $ns ] )
+ 
+=head3 args:
 
 =over
 
-=item * namespace:  The cache namespace.  
+=item * namespace: The cache namespace.  
 
 =back
 
@@ -372,9 +398,7 @@ method getKeys (Str :$namespace) {
 	}
 }
 
-###################
-# private methods #
-###################
+############################################################
 
 method _getChiObject (Str :$namespace) {
 
