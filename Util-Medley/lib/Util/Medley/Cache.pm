@@ -4,6 +4,8 @@ use Modern::Perl;
 use Moose;
 use Method::Signatures;
 use namespace::autoclean;
+
+use Carp;
 use CHI;
 use File::Path 'remove_tree';
 use Data::Printer alias => 'pdump';
@@ -67,7 +69,9 @@ Location of the L2 file cache.
 
 =over
 
-=item default: $HOME/.util-medley/cache
+=item default
+
+$HOME/.util-medley/cache
 
 =back
 
@@ -86,7 +90,9 @@ Toggles caching on or off.
 
 =over
 
-=item default: 1
+=item default
+
+1
 
 =back
 
@@ -103,9 +109,13 @@ has enabled => (
 
 Sets the cache expiration.  
 
-Default: 0 (never)
+=over
 
-Env Var: MEDLEY_CACHE_DISABLED
+=item default
+
+0 (never)
+
+=back
 
 =cut
 
@@ -132,9 +142,17 @@ has namespace => (
 
 Toggles the L1 cache on or off.
 
-Default: 1
+=over
 
-Env Var: MEDLEY_CACHE_L1_DISABLED
+=item default
+
+1
+
+=item env var
+
+To disable L1 cache, set MEDLEY_CACHE_L1_DISABLED=1.
+
+=back
 
 =cut
 
@@ -149,9 +167,17 @@ has l1Enabled => (
 
 Toggles the L2 cache on or off.
 
-Default: 1
+=over
 
-Env Var: MEDLEY_CACHE_L2_DISABLED
+=item default
+
+1
+
+=item env var
+
+To disable L2 cache, set MEDLEY_CACHE_L2_DISABLED=1.
+
+=back
 
 =cut
 
@@ -184,15 +210,21 @@ has _l1Cache => (
 
 Clears all cache for a given namespace.
 
-=head3 usage:
+=over
+
+=item usage:
 
  clear( [ namespace => $ns ] )
 
-=head3 args:
+=item args:
 
 =over
 
-=item * namespace: The cache namespace.
+=item namespace [Str]
+
+The cache namespace.
+
+=back
 
 =back
 
@@ -210,20 +242,28 @@ method clear (Str :$namespace) {
 
 Deletes a cache object.
 
-=head3 usage:
+=over
+
+=item usage:
 
  delete(
-      key       => <string>,
-    [ namespace => <string> ]
+      key       => $key
+    [ namespace => $ns ]
  )
-  
-=head3 args:
+
+=item args:
 
 =over
 
-=item * key: Unique identifier of the cache object.
+=item key [Str]
 
-=item * namespace: The cache namespace.
+Unique identifier of the cache object.
+
+=item namespace [Str] 
+
+The cache namespace. 
+
+=back
 
 =back
 
@@ -242,15 +282,21 @@ method delete (Str :$key!,
 
 Deletes L1 cache and removes L2 from disk completely.
 
-=head3 usage:
+=over
 
- destroy( [namespace => $ns] )
+=item usage:
+
+ destroy( [ namespace => $ns ] )
   
-=head3 args:
+=item args:
 
 =over
 
-=item * namespace: The cache namespace.  
+=item namespace [Str]
+
+The cache namespace.  
+
+=back
 
 =back
 
@@ -268,20 +314,28 @@ method destroy (Str :$namespace) {
 
 Gets a unique cache object.  Returns undef if not found.
 
-=head3 usage:
+=over
+
+=item usage:
 
  get(
       key       => $key,
     [ namespace => $ns ]
  )
  
-=head3 args:
+=item args:
 
 =over
 
-=item * key: Unique identifier of the cache object.
+=item key [Str]
 
-=item * namespace: The cache namespace.  
+Unique identifier of the cache object.
+
+=item namespace [Str]
+
+The cache namespace.  
+
+=back
 
 =back
 
@@ -310,15 +364,21 @@ method get (Str :$namespace,
 
 Gets the L2 cache dir.
 
-=head3 usage:
+=over
+
+=item usage:
 
  getNamespaceDir( [ namespace => $ns ] )
  
-=head3 args:
+=item args:
 
 =over
 
-=item * namespace: The cache namespace.  
+=item namespace [Str]
+
+The cache namespace.  
+
+=back
 
 =back
 
@@ -337,7 +397,9 @@ method getNamespaceDir (Str $namespace?) {
 
 Commits the data object to the cache.
 
-=head3 usage:
+=over
+
+=item usage:
 
  set(
       key       => $key,
@@ -345,15 +407,23 @@ Commits the data object to the cache.
     [ namespace => $ns ],
  )
    
-=head3 args:
+=item args:
 
 =over
 
-=item * key: Unique identifier of the cache object.
+=item key [Str]
 
-=item * data: An object, reference, or string.
+Unique identifier of the cache object.
 
-=item * namespace: The cache namespace.  
+=item data [Object|Ref|Str]
+
+An object, reference, or string.
+
+=item namespace [Str]
+
+The cache namespace.  
+
+=back
 
 =back
 
@@ -373,15 +443,21 @@ method set (Str :$key!,
 
 Returns a list of cache keys.
 
-=head3 usage:
+=over
+
+=item usage:
 
  getKeys( [ namespace => $ns ] )
  
-=head3 args:
+=item args:
 
 =over
 
-=item * namespace: The cache namespace.  
+=item namespace [Str]
+
+The cache namespace.  
+
+=back
 
 =back
 

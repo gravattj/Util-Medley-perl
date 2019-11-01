@@ -46,6 +46,27 @@ your memory on how to use it.  That's where Util::Medley comes in.  It is a
 collection of lightweight modules that provide a standard/consistent 
 interface to commonly used modules.
 
+=over
+
+=item L<Util::Medley::Cache>
+
+=item L<Util::Medley::Crypt>
+
+=item L<Util::Medley::DateTime>
+
+=item L<Util::Medley::File>
+
+=item L<Util::Medley::FileZip>
+
+=item L<Util::Medley::List>
+
+=item L<Util::Medley::Logger>
+
+=item L<Util::Medley::Spawn>
+
+=item L<Util::Medley::String>
+
 =cut
+
 
 1;

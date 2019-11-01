@@ -1,6 +1,7 @@
 
-0.002 
-    - some dzil testing
+0.003
+    - more unit tests
+    - documented Util::Medley::File
 
-0.001 
+0.002 
     - first release
