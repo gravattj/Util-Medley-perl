@@ -24,31 +24,28 @@ Util::Medley::File - utility file methods
 
 =head1 SYNOPSIS
 
-=for code
+ my $file = Util::Medley::File->new;
 
-my $file = Util::Medley::File->new;
+ my $basename = $file->basename($path);
+ my $dirname  = $file->dirname($path);
+ my $newpath  = $file->trimSuffix($path);
 
-my $basename = $file->basename($path);
-my $dirname  = $file->dirname($path);
-my $newpath  = $file->trimSuffix($path);
+ my ($dir, $filename, $suffix) = $file->parsePath($path);
 
-my ($dir, $filename, $suffix) = $file->parsePath($path);
+ $file->cp($src, $dest);
+ $file->mv($src, $dest);
+ $file->chmod($path);
+ $file->mkdir($path);
+ $file->rmdir($path);
+ $file->unlink($path);
 
-$file->cp($src, $dest);
-$file->mv($src, $dest);
-$file->chmod($path);
-$file->mkdir($path);
-$file->rmdir($path);
-$file->unlink($path);
+ my $prev_dir = $file->chdir($path);
+ my $type     = $file->fileType($path);
+ my @found    = $file->find($path);
+ my $cwd      = $file->getcwd;
 
-my $prev_dir = $file->chdir($path);
-my $type     = $file->fileType($path);
-my @found    = $file->find($path);
-my $cwd      = $file->getcwd;
-
-$file->xmllint(path => $path);
-
-my $formated_xml = $file->xmllint(string => $myxml);
+ $file->xmllint(path => $path);
+ my $formated_xml = $file->xmllint(string => $myxml);
 
 =cut
 
