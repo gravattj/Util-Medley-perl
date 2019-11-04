@@ -43,6 +43,24 @@ none
 
 Returns the local date/time in the format: YYYY-MM-DD HH:MM:SS.  
 
+=over
+
+=item usage:
+
+ $dt->localdatetime([ $time ]);
+ 
+=item args:
+
+=over
+
+=item time [Int]
+
+Epoch time used to generate date/time string.  Default is now.
+
+=back
+
+=back
+   
 =cut
 
 method localdatetime ($time = time) {
