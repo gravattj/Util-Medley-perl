@@ -1,9 +1,0 @@
-0.004
-	- fixed pod formatting in Util::Medley::File
-
-0.003
-    - more unit tests
-    - documented Util::Medley::File
-
-0.002 
-    - first release
