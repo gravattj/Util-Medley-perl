@@ -114,6 +114,8 @@ method encryptStr (Str :$str!,
     return $cipher->encrypt_hex($str);
 }
 
+#################################################
+
 method _getKey (Str|Undef $key) {
 
 	if ( !$key ) {
