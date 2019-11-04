@@ -17,7 +17,7 @@ my @Data = ( 'foobar', { biz => 'baz' }, [ x => 'y' ], [ 1, 2 ] );
 my $c = Util::Medley::Cache->new;
 ok($c);
 
-$c = Util::Medley::Cache->new( namespace => $Ns );
+$c = Util::Medley::Cache->new( ns => $Ns );
 ok($c);
 
 #####################################
@@ -25,35 +25,35 @@ ok($c);
 #####################################
 
 test_set( Util::Medley::Cache->new );
-test_set( Util::Medley::Cache->new( namespace => $Ns ) );
+test_set( Util::Medley::Cache->new( ns => $Ns ) );
 
 #####################################
 # get
 #####################################
 
 test_get( Util::Medley::Cache->new );
-test_get( Util::Medley::Cache->new( namespace => $Ns ) );
+test_get( Util::Medley::Cache->new( ns => $Ns ) );
 
 #####################################
 # getKeys
 #####################################
 
 test_getKeys( Util::Medley::Cache->new );
-test_getKeys( Util::Medley::Cache->new( namespace => $Ns ) );
+test_getKeys( Util::Medley::Cache->new( ns => $Ns ) );
 
 #####################################
 # delete
 #####################################
 
 test_delete( Util::Medley::Cache->new );
-test_delete( Util::Medley::Cache->new( namespace => $Ns ) );
+test_delete( Util::Medley::Cache->new( ns => $Ns ) );
 
 #####################################
 # clear
 #####################################
 
 test_clear( Util::Medley::Cache->new );
-test_clear( Util::Medley::Cache->new( namespace => $Ns ) );
+test_clear( Util::Medley::Cache->new( ns => $Ns ) );
 
 #
 # tests without any attributes passed in
@@ -61,28 +61,28 @@ test_clear( Util::Medley::Cache->new( namespace => $Ns ) );
 $c = Util::Medley::Cache->new;
 
 # add and verify seed data
-ok( $c->destroy( namespace => $Ns ) );
-$c->set( namespace => $Ns, key => 'item1', data => { foo => 'bar' } );
-$c->set( namespace => $Ns, key => 'item2', data => { biz => 'baz' } );
-ok( my @keys = $c->getKeys( namespace => $Ns ) );
+ok( $c->destroy( ns => $Ns ) );
+$c->set( ns => $Ns, key => 'item1', data => { foo => 'bar' } );
+$c->set( ns => $Ns, key => 'item2', data => { biz => 'baz' } );
+ok( my @keys = $c->getKeys( ns => $Ns ) );
 ok( @keys == 2 );
 
 # happy path
-ok( $c->clear( namespace => $Ns ) );
+ok( $c->clear( ns => $Ns ) );
 
 # verify clear worked
-@keys = $c->getKeys( namespace => $Ns );
+@keys = $c->getKeys( ns => $Ns );
 ok( @keys == 0 );
 
 #
-# tests with namespace attribute set
+# tests with ns attribute set
 #
-$c = Util::Medley::Cache->new( namespace => $Ns );
+$c = Util::Medley::Cache->new( ns => $Ns );
 
 # add and verify seed data
-ok( $c->destroy( namespace => $Ns ) );
-$c->set( namespace => $Ns, key => 'item1', data => { foo => 'bar' } );
-$c->set( namespace => $Ns, key => 'item2', data => { biz => 'baz' } );
+ok( $c->destroy( ns => $Ns ) );
+$c->set( ns => $Ns, key => 'item1', data => { foo => 'bar' } );
+$c->set( ns => $Ns, key => 'item2', data => { biz => 'baz' } );
 ok( @keys = $c->getKeys );
 ok( @keys == 2 );
 
@@ -107,9 +107,9 @@ sub test_clear {
 	nuke_data();
 	seed_data();
 
-	if ( !$c->namespace ) {
+	if ( !$c->ns ) {
 
-		ok( my @curr = $c->getKeys( namespace => $Ns ) );
+		ok( my @curr = $c->getKeys( ns => $Ns ) );
 	}
 	else {
 
@@ -119,16 +119,16 @@ sub test_clear {
 sub nuke_data {
 
 	my $c = Util::Medley::Cache->new;
-	ok( $c->destroy( namespace => $Ns ) );
+	ok( $c->destroy( ns => $Ns ) );
 }
 
 sub seed_data {
 
 	my $c = Util::Medley::Cache->new;
-	$c->set( namespace => $Ns, key => $Keys[0], data => $Data[0] );
-	$c->set( namespace => $Ns, key => $Keys[1], data => $Data[1] );
-	$c->set( namespace => $Ns, key => $Keys[2], data => $Data[2] );
-	$c->set( namespace => $Ns, key => $Keys[3], data => $Data[3] );
+	$c->set( ns => $Ns, key => $Keys[0], data => $Data[0] );
+	$c->set( ns => $Ns, key => $Keys[1], data => $Data[1] );
+	$c->set( ns => $Ns, key => $Keys[2], data => $Data[2] );
+	$c->set( ns => $Ns, key => $Keys[3], data => $Data[3] );
 }
 
 sub test_set {
@@ -137,10 +137,10 @@ sub test_set {
 
 	nuke_data();
 	
-	if ( !$c->namespace ) {
+	if ( !$c->ns ) {
 
 		# should succeed
-		ok( $c->set( namespace => $Ns, key => $Keys[0], data => $Data[0] ) );
+		ok( $c->set( ns => $Ns, key => $Keys[0], data => $Data[0] ) );
 
 		# should fail
 		eval { $c->set( key => $Keys[1], $Data[1] ) };
@@ -160,10 +160,10 @@ sub test_getKeys {
 	nuke_data();
 	seed_data();
 		
-	if ( !$c->namespace ) {
+	if ( !$c->ns ) {
 
 		# should succeed
-		ok( my @keys = $c->getKeys( namespace => $Ns ) );
+		ok( my @keys = $c->getKeys( ns => $Ns ) );
 		is(@keys, @Keys);
 		
 		# should fail
@@ -185,14 +185,14 @@ sub test_delete {
 	nuke_data();
 	seed_data();
 	
-	if ( !$c->namespace ) {
+	if ( !$c->ns ) {
 
 		# should succeed
-		ok( $c->delete( namespace => $Ns, key => $Keys[0] ) );
-		ok( !$c->get( namespace => $Ns, key => $Keys[0] ) );
+		ok( $c->delete( ns => $Ns, key => $Keys[0] ) );
+		ok( !$c->get( ns => $Ns, key => $Keys[0] ) );
 
 		# should succeed
-		ok( $c->delete( namespace => $Ns, key => 'doesnotexist' ) );
+		ok( $c->delete( ns => $Ns, key => 'doesnotexist' ) );
 
 		# should fail
 		eval { $c->delete( key => $Keys[1] ) };
@@ -216,10 +216,10 @@ sub test_get {
 	nuke_data();
 	seed_data();
 	
-	if ( !$c->namespace ) {
+	if ( !$c->ns ) {
 
 		# should succeed
-		ok( my $data = $c->get( namespace => $Ns, key => $Keys[2] ) );
+		ok( my $data = $c->get( ns => $Ns, key => $Keys[2] ) );
 		is( $data, $Data[2]);
 
 		# should fail

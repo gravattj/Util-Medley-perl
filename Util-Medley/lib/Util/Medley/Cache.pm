@@ -22,17 +22,17 @@ Util::Medley::Cache - Simple caching mechanism.
 
 =head1 SYNOPSIS
 
-  $self->set(namespace => 'unittest', 
-             key       => 'test1', 
-             data      => { foo => 'bar' });
+  $self->set(ns   => 'unittest', 
+             key  => 'test1', 
+             data => { foo => 'bar' });
 
-  my $data = $self->get(namespace => 'unittest', 
-                        key       => 'test1');
+  my $data = $self->get(ns  => 'unittest', 
+                        key => 'test1');
 
-  my @keys = $self->getKeys(namespace => 'unittest');
+  my @keys = $self->getKeys(ns => 'unittest');
 
-  $self->delete(namespace => 'unittest', 
-                key       => 'test1');
+  $self->delete(ns  => 'unittest', 
+                key => 'test1');
 
 =cut
 
@@ -127,13 +127,13 @@ has expireSecs => (
 	default => 0,
 );
 
-=head2 namespace (optional)
+=head2 ns (optional)
 
 Sets the cache namespace.  
 
 =cut
 
-has namespace => (
+has ns => (
 	is  => 'rw',
 	isa => 'Str',
 );
@@ -214,13 +214,13 @@ Clears all cache for a given namespace.
 
 =item usage:
 
- clear( [ namespace => $ns ] )
+ clear( [ ns => $ns ] )
 
 =item args:
 
 =over
 
-=item namespace [Str]
+=item ns [Str]
 
 The cache namespace.
 
@@ -230,7 +230,7 @@ The cache namespace.
 
 =cut
 
-method clear (Str :$namespace) {
+method clear (Str :$ns) {
 
 	$self->_l1Clear(@_) if $self->l1Enabled;
 	$self->_l2Clear(@_) if $self->l2Enabled;
@@ -247,8 +247,8 @@ Deletes a cache object.
 =item usage:
 
  delete(
-      key       => $key
-    [ namespace => $ns ]
+      key => $key
+    [ ns  => $ns ]
  )
 
 =item args:
@@ -259,7 +259,7 @@ Deletes a cache object.
 
 Unique identifier of the cache object.
 
-=item namespace [Str] 
+=item ns [Str] 
 
 The cache namespace. 
 
@@ -270,7 +270,7 @@ The cache namespace.
 =cut
 
 method delete (Str :$key!,
-               Str :$namespace) {
+               Str :$ns) {
 
 	$self->_l1Delete(@_) if $self->l1Enabled;
 	$self->_l2Delete(@_) if $self->l1Enabled;
@@ -286,13 +286,13 @@ Deletes L1 cache and removes L2 from disk completely.
 
 =item usage:
 
- destroy( [ namespace => $ns ] )
+ destroy( [ ns => $ns ] )
   
 =item args:
 
 =over
 
-=item namespace [Str]
+=item ns [Str]
 
 The cache namespace.  
 
@@ -302,7 +302,7 @@ The cache namespace.
 
 =cut
 
-method destroy (Str :$namespace) {
+method destroy (Str :$ns) {
 
 	$self->_l1Destroy(@_) if $self->l1Enabled;
 	$self->_l2Destroy(@_) if $self->l1Enabled;
@@ -318,10 +318,9 @@ Gets a unique cache object.  Returns undef if not found.
 
 =item usage:
 
- get(
-      key       => $key,
-    [ namespace => $ns ]
- )
+ get( key => $key,
+    [ ns  => $ns ]
+ );
  
 =item args:
 
@@ -331,7 +330,7 @@ Gets a unique cache object.  Returns undef if not found.
 
 Unique identifier of the cache object.
 
-=item namespace [Str]
+=item ns [Str]
 
 The cache namespace.  
 
@@ -341,7 +340,7 @@ The cache namespace.
 
 =cut
 
-method get (Str :$namespace,
+method get (Str :$ns,
             Str :$key!) {
 
 	if ( $self->l1Enabled ) {
@@ -368,13 +367,13 @@ Gets the L2 cache dir.
 
 =item usage:
 
- getNamespaceDir( [ namespace => $ns ] )
+ getNamespaceDir( [ ns => $ns ] )
  
 =item args:
 
 =over
 
-=item namespace [Str]
+=item ns [Str]
 
 The cache namespace.  
 
@@ -385,11 +384,11 @@ The cache namespace.
 =cut
 
 
-method getNamespaceDir (Str $namespace?) {
+method getNamespaceDir (Str $ns?) {
 
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
-	return sprintf "%s/%s", $self->rootDir, $namespace;
+	return sprintf "%s/%s", $self->rootDir, $ns;
 }
 
 
@@ -402,9 +401,9 @@ Commits the data object to the cache.
 =item usage:
 
  set(
-      key       => $key,
-      data      => $data,
-    [ namespace => $ns ],
+      key  => $key,
+      data => $data,
+    [ ns   => $ns ],
  )
    
 =item args:
@@ -419,7 +418,7 @@ Unique identifier of the cache object.
 
 An object, reference, or string.
 
-=item namespace [Str]
+=item ns [Str]
 
 The cache namespace.  
 
@@ -431,7 +430,7 @@ The cache namespace.
 
 method set (Str :$key!,
             Any :$data!,
-            Str :$namespace) {
+            Str :$ns) {
 
 	$self->_l1Set(@_) if $self->l1Enabled;
 	$self->_l2Set(@_) if $self->l2Enabled;
@@ -447,13 +446,13 @@ Returns a list of cache keys.
 
 =item usage:
 
- getKeys( [ namespace => $ns ] )
+ getKeys( [ ns => $ns ] )
  
 =item args:
 
 =over
 
-=item namespace [Str]
+=item ns [Str]
 
 The cache namespace.  
 
@@ -463,7 +462,7 @@ The cache namespace.
 
 =cut
 
-method getKeys (Str :$namespace) {
+method getKeys (Str :$ns) {
 
 	if ( $self->l2Enabled ) {
 		return $self->_l2GetKeys(@_);
@@ -476,24 +475,24 @@ method getKeys (Str :$namespace) {
 
 ############################################################
 
-method _getChiObject (Str :$namespace) {
+method _getChiObject (Str :$ns) {
 
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
 	my $href = $self->_chiObjects;
 
-	if ( exists $href->{$namespace} ) {
-		return $href->{$namespace};
+	if ( exists $href->{$ns} ) {
+		return $href->{$ns};
 	}
 
 	my %params = (
 		driver    => 'File',
 		root_dir  => $self->rootDir,
-		namespace => $namespace,
+		namespace => $ns,
 	);
 
 	my $chi = CHI->new(%params);
-	$href->{$namespace} = $chi;
+	$href->{$ns} = $chi;
 	$self->_chiObjects($href);
 
 	return $chi;
@@ -541,30 +540,30 @@ method _buildEnabled {
 	return 1;
 }
 
-method _l1Get (Str :$namespace,
-                    Str :$key!) {
+method _l1Get (Str :$ns,
+               Str :$key!) {
 
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
 	$self->_l1Expire(@_);
 
 	my $l1 = $self->_l1Cache;
-	if ( $l1->{$namespace}->{$key}->{data} ) {
-		return $l1->{$namespace}->{$key}->{data};
+	if ( $l1->{$ns}->{$key}->{data} ) {
+		return $l1->{$ns}->{$key}->{data};
 	}
 
 	return;
 }
 
-method _l1Expire (Str :$namespace,
-                       Str :$key!) {
+method _l1Expire (Str :$ns,
+                  Str :$key!) {
 
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
 	my $l1 = $self->_l1Cache;
 
-	if ( $l1->{$namespace}->{$key} ) {
-		my $href = $l1->{$namespace}->{$key};
+	if ( $l1->{$ns}->{$key} ) {
+		my $href = $l1->{$ns}->{$key};
 
 		if ( $href->{expire_epoch} ) {    # zero or undef = never
 
@@ -580,57 +579,57 @@ method _l1Expire (Str :$namespace,
 	return;
 }
 
-method _l1Delete (Str :$namespace,
-                       Str :$key!) {
+method _l1Delete (Str :$ns,
+                  Str :$key!) {
 
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
 	my $l1 = $self->_l1Cache;
-	if ( $l1->{$namespace}->{$key} ) {
-		delete $l1->{$namespace}->{$key};
+	if ( $l1->{$ns}->{$key} ) {
+		delete $l1->{$ns}->{$key};
 	}
 
 	return;
 }
 
-method _l1Destroy (Str :$namespace) {
+method _l1Destroy (Str :$ns) {
 
 	$self->_l1Clear(@_);
 }
 
-method _l2Destroy (Str :$namespace) {
+method _l2Destroy (Str :$ns) {
 
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
 	my $href = $self->_chiObjects;
-	if ($href->{$namespace}) {
-		delete $href->{$namespace};
+	if ($href->{$ns}) {
+		delete $href->{$ns};
 	}
 
-	remove_tree($self->getNamespaceDir($namespace));	
+	remove_tree($self->getNamespaceDir($ns));	
 }
 
-method _l1Clear (Str :$namespace) {
+method _l1Clear (Str :$ns) {
 
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
 	my $l1 = $self->_l1Cache;
-	$l1->{$namespace} = {};
+	$l1->{$ns} = {};
 }
 
-method _l2Clear (Str :$namespace) {
+method _l2Clear (Str :$ns) {
 
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
-	my $chi = $self->_getChiObject( namespace => $namespace );
+	my $chi = $self->_getChiObject( ns => $ns );
 	$chi->clear;
 }
 
-method _l1Set (Str :$namespace,
-                    Str :$key!,
-                    Any :$data!) {
+method _l1Set (Str :$ns,
+               Str :$key!,
+               Any :$data!) {
 	
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
 	my $node = {
 		data         => $data,
@@ -642,18 +641,18 @@ method _l1Set (Str :$namespace,
 	}
 
 	my $l1 = $self->_l1Cache;
-	$l1->{$namespace}->{$key} = $node;
+	$l1->{$ns}->{$key} = $node;
 
 	return;
 }
 
-method _l1GetKeys (Str :$namespace) {
+method _l1GetKeys (Str :$ns) {
 
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
 	my $l1 = $self->_l1Cache;
-	if ( $l1 and $l1->{$namespace} ) {
-		return keys %{ $l1->{$namespace} };
+	if ( $l1 and $l1->{$ns} ) {
+		return keys %{ $l1->{$ns} };
 	}
 }
 
@@ -666,44 +665,44 @@ method _getExpireSecsForChi {
 	return 'never';
 }
 
-method _l2Set (Str :$namespace,
-                    Str :$key!,
-                    Any :$data!) {
+method _l2Set (Str :$ns,
+               Str :$key!,
+               Any :$data!) {
 
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
-	my $chi = $self->_getChiObject( namespace => $namespace );
+	my $chi = $self->_getChiObject( ns => $ns );
 
 	return $chi->set( $key, $data, $self->_getExpireSecsForChi );
 }
 
-method _l2Delete (Str :$namespace,
-                       Str :$key) {
+method _l2Delete (Str :$ns,
+                  Str :$key) {
 
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
-	my $chi = $self->_getChiObject( namespace => $namespace );
+	my $chi = $self->_getChiObject( ns => $ns );
 	$chi->expire($key);
 
 	return;
 }
 
-method _l2Get (Str :$namespace,
+method _l2Get (Str :$ns,
                Str :$key) {
 
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
-	my $chi = $self->_getChiObject( namespace => $namespace );
+	my $chi = $self->_getChiObject( ns => $ns );
 	return $chi->get($key);
 }
 
-method _l2GetKeys (Str :$namespace) {
+method _l2GetKeys (Str :$ns) {
 
-	$namespace = $self->_getNamespace($namespace);
+	$ns = $self->_getNamespace($ns);
 
 	my @keys;
 
-	my $chi = $self->_getChiObject( namespace => $namespace );
+	my $chi = $self->_getChiObject( ns => $ns );
 	if ($chi) {
 		@keys = $chi->get_keys;
 	}
@@ -711,17 +710,17 @@ method _l2GetKeys (Str :$namespace) {
 	return @keys;
 }
 
-method _getNamespace (Str|Undef $namespace) {
+method _getNamespace (Str|Undef $ns) {
 
-	if ( !$namespace ) {
-		if ( !$self->namespace ) {
+	if ( !$ns ) {
+		if ( !$self->ns ) {
 			confess "must provide namespace";
 		}
 
-		return $self->namespace;
+		return $self->ns;
 	}
 
-	return $namespace;
+	return $ns;
 }
 
 1;
