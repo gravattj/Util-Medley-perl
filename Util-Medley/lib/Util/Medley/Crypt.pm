@@ -16,12 +16,20 @@ Util::Medley::Crypt - Class for simple encrypt/descrypt of strings.
 
 =head1 SYNOPSIS
 
-  my $key = 'abcdefghijklmnopqrstuvwxyz';
-  my $str = 'foobar';
+ my $key = 'abcdefghijklmnopqrstuvwxyz';
+ my $str = 'foobar';
+
+ my $crypt = Util::Medley::Crypt->new;
   
-  my $encrypted_str = $self->encryptStr($key, $str);
- 
-  my $origin = $self->decryptStr($key, $encrypted_str); 
+ my $encrypted_str = $crypt->encryptStr(
+    str => $str,
+    key => $key
+ );
+
+ my $decrypted_str = $crypt->decryptStr(
+    str => $encrypted_str,
+    key => $key
+ );
   
 =cut
 
@@ -41,7 +49,8 @@ All methods confess on error.
 
 =head2 key (optional)
 
-Key to use for encrypting/decrypting methods when one isn't provided.
+Key to use for encrypting/decrypting methods when one isn't provided through
+the method calls.
 
 =cut
 
@@ -52,23 +61,34 @@ has key =>(
 
 ########################################################
 
+=head1 METHODS
+
 =head2 decryptStr
 
 Decrypts the provided string.
 
-=head3 required args
+=over
+
+=item usage:
+
+ my $decrypted_str = $crypt->decryptStr(
+       str => $encrypted_str,
+     [ key => $key ]
+ );
+      
+=item args:
 
 =over
 
-=item * str:  String to Decrypt.
+=item str [Str]
 
+String you wish to decrypt.
+
+=item key [Str]
+
+Key that was used to encrypt the string.
+                                
 =back
-
-=head3 optional args
-
-=over
-
-=item * key:  Decryption key.
 
 =back
 
@@ -87,19 +107,21 @@ method decryptStr (Str :$str!,
 
 Encrypts the provided string.
 
-=head3 required args
-
 =over
 
-=item * str:  String to Encrypt.
+=item args:
+ 
+=over
 
+=item str [Str]
+
+String you wish to encrypt.
+
+=item key [Str] (optional)
+
+Key used to encrypt the string.
+                                
 =back
-
-=head3 optional args
-
-=over
-
-=item * key:  Encryption key.
 
 =back
 
