@@ -7,11 +7,12 @@ with 'Util::Medley::Roles::Attributes::Cache';
 with 'Util::Medley::Roles::Attributes::Crypt';
 with 'Util::Medley::Roles::Attributes::DateTime';
 with 'Util::Medley::Roles::Attributes::File';
-with 'Util::Medley::Roles::Attributes::FileZip';
+with 'Util::Medley::Roles::Attributes::File::Zip';
 with 'Util::Medley::Roles::Attributes::List';
 with 'Util::Medley::Roles::Attributes::Logger';
 with 'Util::Medley::Roles::Attributes::Spawn';
 with 'Util::Medley::Roles::Attributes::String';
+with 'Util::Medley::Roles::Attributes::XML';
 
 =head1 NAME
 
@@ -44,7 +45,7 @@ Let's face it, CPAN is huge and finding the right module to use can waste
 a lot of time.  Once you find what you want, you may even have to refresh 
 your memory on how to use it.  That's where Util::Medley comes in.  It is a 
 collection of lightweight modules that provide a standard/consistent 
-interface to commonly used modules.
+interface to commonly used modules all under one roof.
 
 =over
 
@@ -56,7 +57,7 @@ interface to commonly used modules.
 
 =item L<Util::Medley::File>
 
-=item L<Util::Medley::FileZip>
+=item L<Util::Medley::File::Zip>
 
 =item L<Util::Medley::List>
 
@@ -65,6 +66,8 @@ interface to commonly used modules.
 =item L<Util::Medley::Spawn>
 
 =item L<Util::Medley::String>
+
+=item L<Util::Medley::XML>
 
 =cut
 

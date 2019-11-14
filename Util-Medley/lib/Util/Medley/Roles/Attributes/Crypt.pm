@@ -2,7 +2,6 @@ package Util::Medley::Roles::Attributes::Crypt;
 
 use Modern::Perl;
 use Moose::Role;
-use Method::Signatures;
 use Util::Medley::Crypt;
 
 =head1 NAME

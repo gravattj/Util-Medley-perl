@@ -2,7 +2,6 @@ package Util::Medley::Roles::Attributes::Spawn;
 
 use Modern::Perl;
 use Moose::Role;
-use Method::Signatures;
 use Util::Medley::Spawn;
 
 =head1 NAME

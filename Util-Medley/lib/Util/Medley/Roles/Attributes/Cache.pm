@@ -2,7 +2,6 @@ package Util::Medley::Roles::Attributes::Cache;
 
 use Modern::Perl;
 use Moose::Role;
-use Method::Signatures;
 use Util::Medley::Cache;
 
 =head1 NAME

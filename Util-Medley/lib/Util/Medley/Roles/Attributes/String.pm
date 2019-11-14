@@ -2,7 +2,6 @@ package Util::Medley::Roles::Attributes::String;
 
 use Modern::Perl;
 use Moose::Role;
-use Method::Signatures;
 use Util::Medley::String;
 
 =head1 NAME

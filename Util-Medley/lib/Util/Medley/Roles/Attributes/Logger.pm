@@ -2,7 +2,6 @@ package Util::Medley::Roles::Attributes::Logger;
 
 use Modern::Perl;
 use Moose::Role;
-use Method::Signatures;
 use Util::Medley::Logger;
 
 =head1 NAME

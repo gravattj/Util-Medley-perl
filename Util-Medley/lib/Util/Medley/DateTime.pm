@@ -3,9 +3,9 @@ package Util::Medley::DateTime;
 use Modern::Perl;
 use Moose;
 use namespace::autoclean;
-use Method::Signatures;
 use Data::Printer alias => 'pdump';
 use Time::localtime;
+use Kavorka '-all';
 
 =head1 NAME
 
@@ -16,9 +16,17 @@ Util::Medley::DateTime - Class with various datetime methods.
 =head1 SYNOPSIS
 
   my $dt = Util::Medley::DateTime->new;
-  
-  print $dt->localdatetime;
- 
+
+  #
+  # positional  
+  #
+  say $dt->localdatetime(time);
+
+  #
+  # named pair
+  #
+  say $dt->localdatetime(epoch => time);
+   
 =cut
 
 ########################################################
@@ -47,7 +55,9 @@ Returns the local date/time in the format: YYYY-MM-DD HH:MM:SS.
 
 =item usage:
 
- $dt->localdatetime([ $time ]);
+ $dt->localdatetime([time]);
+
+ $dt->localdatetime([epoch => time]);
  
 =item args:
 
@@ -63,9 +73,9 @@ Epoch time used to generate date/time string.  Default is now.
    
 =cut
 
-method localdatetime ($time = time) {
+multi method localdatetime (Int $epoch = time) {
 
-    my $l = localtime($time);
+    my $l = localtime($epoch);
 
     my $str = sprintf(
         '%04d-%02d-%02d %02d:%02d:%02d',
@@ -77,5 +87,9 @@ method localdatetime ($time = time) {
     return $str;
 }
 
+multi method localdatetime (Int :$epoch = time) {
+	
+	return $self->localdatetime($epoch);	
+}
 
 1;
