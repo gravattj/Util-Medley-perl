@@ -57,6 +57,8 @@ Location of the xml file.
 
 =back
 
+=back
+
 =cut
 
 multi method xmlBeautifyFile (Str :$path!) {
@@ -90,6 +92,8 @@ Formats an XML string.  Requires the xmllint command.
 =item xml [Str]
 
 An XML string.
+
+=back
 
 =back
 

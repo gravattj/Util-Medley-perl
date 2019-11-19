@@ -69,6 +69,8 @@ interface to commonly used modules all under one roof.
 
 =item L<Util::Medley::XML>
 
+=back
+
 =cut
 
 

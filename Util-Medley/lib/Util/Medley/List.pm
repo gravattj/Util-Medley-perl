@@ -187,6 +187,8 @@ Just a proxy to List::Util::uniq().
  @uniq = $util->uniq(@list);
 
  @uniq = $util->uniq(list => \@list);
+
+=back
    
 =cut
 
