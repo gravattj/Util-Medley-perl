@@ -800,7 +800,7 @@ method _assembleMsg (Str 	   :$type!,
 	}
 
 	if ( $detail > 2 ) {
-		push @msg, sprintf '[%s]', $self->DateTime->localdatetime();
+		push @msg, sprintf '[%s]', $self->DateTime->localDateTime();
 	}
 
 	if ( $detail > 3 ) {
