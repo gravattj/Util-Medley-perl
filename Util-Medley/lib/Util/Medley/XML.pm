@@ -45,7 +45,7 @@ Beautifies an XML file.  Requires the xmllint command.
 
  $util->xmlBeautifyFile($path);
 
- $util->XmlBeautifyFile(path => $path);
+ $util->xmlBeautifyFile(path => $path);
  
 =item args:
 
