@@ -8,6 +8,7 @@ use namespace::autoclean;
 use Kavorka '-all';
 use Data::Printer alias => 'pdump';
 use List::Util;
+use Sort::Naturally;
 
 =head1 NAME
 
@@ -127,6 +128,44 @@ multi method max (@list) {
 multi method max (ArrayRef :$list!) {
 
 	return $self->max(@$list);	
+}
+
+
+=head1 nsort 
+
+Sort an array naturally (case in-sensitive).  Just a passthrough to
+Sort::Naturally::nsort.
+
+=over
+
+=item usage:
+
+ @sorted = $util->nsort(@list);
+ 
+ @sorted = $util->nsort(list => \@list);
+
+=item args:
+
+=over
+
+=item list [Array|ArrayRef]
+
+The list to act on.
+
+=back
+
+=back
+ 
+=cut
+
+multi method nsort (ArrayRef :$list!) {
+
+	return $self->nsort(@$list);
+}
+
+multi method nsort (@list) {
+
+	return Sort::Naturally::nsort(@list);
 }
 
 =head2 undefsToStrings
