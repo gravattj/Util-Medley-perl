@@ -348,7 +348,8 @@ multi method find (Str :$dir!) {
 	my $next = $rule->iter($dir);
 
 	while ( defined( my $path = $next->() ) ) {
-		
+	
+		next if $path eq $dir; # don't return self	
 		push @paths, $path;
 	}
 
