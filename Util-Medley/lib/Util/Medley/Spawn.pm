@@ -51,10 +51,11 @@ write to log if enabled.
 
 =item usage:
 
- ($stdout, $stderr, $exit) = $util->capture($cmd, [$stdin])
+ ($stdout, $stderr, $exit) = $util->capture($cmd, [$stdin], [$wantArrayRefs])
  
  ($stdout, $stderr, $exit) = $util->capture(cmd   => $cmd, 
-                                           [stdin => $stdin])
+                                           [stdin => $stdin],
+                                           [wantArrayRefs => $wantArrayRefs])
  
 =item args:
 
@@ -68,6 +69,11 @@ System command to invoke.  Can be an arrayref or a string.
 
 Stdin to pass to the command.
 
+=item wantArrayRefs [Bool]
+
+If true, returns stdout and stderr as array refs instead of strings.  Default
+is 0.
+
 =back
 
 =back
@@ -75,7 +81,8 @@ Stdin to pass to the command.
 =cut
 
 multi method capture (ArrayRef|Str :$cmd!,
-					  ArrayRef|Str :$stdin) {
+					  ArrayRef|Str :$stdin,
+					  Bool         :$wantArrayRefs) {
 
 	my $msg;
 	if (ref($cmd) eq 'ARRAY') {
@@ -106,7 +113,11 @@ multi method capture (ArrayRef|Str :$cmd!,
 
 	chomp $stdout;
 	chomp $stderr;
-		
+	
+	if ($wantArrayRefs) {
+		return ([ split(/\n/, $stdout) ], [ split(/\n/, $stderr) ], $exit);		
+	}
+	
 	return ( $stdout, $stderr, $exit );
 }
 
