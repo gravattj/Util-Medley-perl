@@ -62,6 +62,14 @@ All methods confess on error.
 Key to use for encrypting/decrypting methods when one isn't provided through
 the method calls.
 
+=over
+
+=item type: Str
+
+=item env var: MEDLEY_CRYPT_KEY
+
+=back
+
 =cut
 
 has key =>(
@@ -162,7 +170,7 @@ multi method encryptStr (Str :$str!,
 	    			   	 Str :$key) {
 
 	$key = $self->_getKey($key);
-
+    
     my $cipher = Crypt::CBC->new(-key => $key, -cipher => 'Blowfish');
     return $cipher->encrypt_hex($str);
 }
@@ -180,10 +188,15 @@ multi method encryptStr (Str $str,
 #################################################
 
 method _getKey (Str|Undef $key) {
-
+	
 	if ( !$key ) {
 		if ( !$self->key ) {
-			confess "must provide key";
+			if ($ENV{MEDLEY_CRYPT_KEY}){
+				return 	$ENV{MEDLEY_CRYPT_KEY};
+			}
+			else {
+				confess "must provide key";
+			}
 		}
 
 		return $self->key;
