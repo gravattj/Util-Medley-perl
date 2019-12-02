@@ -112,6 +112,10 @@ sub test_findFiles {
 	@find = $File->findFiles( dir => $tmpdir, maxDepth => 2 );
 	ok( scalar @find == 6 );
 
+	$File->touch("$tmpdir/blah.txt");
+	@find = $File->findFiles( dir => $tmpdir, maxDepth => 2, extension => 'txt' );
+	ok( scalar @find == 1 );
+	
 	$File->rmdir($tmpdir);
 }
 

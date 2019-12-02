@@ -439,9 +439,11 @@ multi method findFiles (Str :$dir!,
 	
 	foreach my $path (@paths) {	
 		next if -d $path;
-	
-		if ($extension and $path =~ /\.$extension$/) {
-			push @files, $path;	
+		
+		if ($extension) {
+			if ($path =~ /\.$extension$/) {
+				push @files, $path;	
+			}
 		}
 		else {	
 			push @files, $path;	
