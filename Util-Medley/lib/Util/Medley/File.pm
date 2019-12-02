@@ -319,9 +319,10 @@ directories.
 
 =item usage:
 
- @files = $util->find($dir);
+ @files = $util->find($dir, [$maxDepth]);
  
- @files = $util->find(dir => $dir);
+ @files = $util->find( dir => $dir,
+                      [maxDepth => $maxDepth] );
 
 =item args:
 
@@ -331,22 +332,29 @@ directories.
 
 The directory path you wish to search.
 
+=item maxDepth [Int]
+
+Maximum number of directeries (in terms of depth) to traverse.
+
 =back
 
 =back
 
 =cut
 
-multi method find (Str :$dir!) {
-
+multi method find (Str :$dir!,
+				   Int :$maxDepth) {
+	
 	if ( !-d $dir ) {
 		confess "dir $dir does not exist";
 	}
 
+	my $rule = 	Path::Iterator::Rule->new;
+	$rule->max_depth($maxDepth) if defined $maxDepth;
+		
 	my @paths;
-	my $rule = Path::Iterator::Rule->new;
-	my $next = $rule->iter($dir);
-
+	my $next = $rule->iter($dir);	
+		
 	while ( defined( my $path = $next->() ) ) {
 	
 		next if $path eq $dir; # don't return self	
@@ -356,9 +364,13 @@ multi method find (Str :$dir!) {
 	return @paths;
 }
 
-multi method find (Str $dir) {
+multi method find (Str $dir, Int $maxDepth?) {
 
-	return $self->find(dir => $dir);	
+	my %a;
+	$a{dir} = $dir;
+	$a{maxDepth} = $maxDepth if defined $maxDepth;
+	
+	return $self->find(%a);
 }
 
 
@@ -371,9 +383,10 @@ convenience wrapper around find.
 
 =item usage:
 
- @files = $util->findFiles($dir);
+ @files = $util->findFiles($dir, [$maxDepth]);
  
- @files = $util->find(dir => $dir);
+ @files = $util->find( dir => $dir, 
+                      [maxDepth => $maxDepth] );
 
 =item args:
 
@@ -383,15 +396,24 @@ convenience wrapper around find.
 
 The directory path you wish to search.
 
+=item maxDepth [Int]
+
+Maximum number of directeries (in terms of depth) to traverse.
+
 =back
 
 =back
 
 =cut
 
-multi method findFiles (Str :$dir!) {
+multi method findFiles (Str :$dir!,
+						Int :$maxDepth) {
 
-	my @paths = $self->find(dir => $dir);
+	my %a;
+	$a{dir} = $dir;
+	$a{maxDepth} = $maxDepth if defined $maxDepth;
+		
+	my @paths = $self->find(%a);
 	my @files;
 	
 	foreach my $path (@paths) {	
@@ -402,9 +424,14 @@ multi method findFiles (Str :$dir!) {
 	return @files;
 }
 
-multi method findFiles (Str $dir) {
-
-	return $self->findFiles(dir => $dir);
+multi method findFiles (Str $dir, 
+						Int $maxDepth?) {
+							
+	my %a;
+	$a{dir} = $dir;
+	$a{maxDepth} = $maxDepth if defined $maxDepth;
+	
+	return $self->findFiles(%a);
 }
 
 
@@ -417,9 +444,10 @@ convenience wrapper around find.
 
 =item usage:
 
- @dirs = $util->findDirs($dir);
+ @dirs = $util->findDirs($dir, [$maxDepth]);
  
- @dirs = $util->findDirs(dir => $dir);
+ @dirs = $util->findDirs( dir      => $dir,
+                         [maxDepth => $maxDepth] );
 
 =item args:
 
@@ -429,15 +457,24 @@ convenience wrapper around find.
 
 The directory path you wish to search.
 
+=item maxDepth [Int]
+
+Maximum number of directeries (in terms of depth) to traverse.
+
 =back
 
 =back
 
 =cut
 
-multi method findDirs (Str :$dir!) {
+multi method findDirs (Str :$dir!,
+					   Int :$maxDepth) {
 
-	my @paths = $self->find(dir => $dir);
+	my %a;
+	$a{dir} = $dir;
+	$a{maxDepth} = $maxDepth if defined $maxDepth;
+	my @paths = $self->find(%a);
+	
 	my @dirs;
 	
 	foreach my $path (@paths) {	
@@ -448,9 +485,13 @@ multi method findDirs (Str :$dir!) {
 	return @dirs;
 }
 
-multi method findDirs (Str $dir) {
+multi method findDirs (Str $dir, Int $maxDepth?) {
 
-	return $self->findDirs(dir => $dir);
+	my %a;
+	$a{dir} = $dir;
+	$a{maxDepth} = $maxDepth if defined $maxDepth;
+	
+	return $self->findDirs(%a);
 }
 
 
