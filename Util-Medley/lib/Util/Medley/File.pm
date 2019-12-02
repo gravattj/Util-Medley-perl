@@ -313,7 +313,7 @@ multi method fileType (Str $path) {
 =head2 find
 
 Pass-through to Path::Iterator::Rule.  Returns a list of all files and 
-directories.
+directories.  Note this does NOT return the dir passed in.
 
 =over
 
