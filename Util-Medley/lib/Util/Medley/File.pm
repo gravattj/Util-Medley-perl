@@ -389,10 +389,10 @@ convenience wrapper around find.
 
  @files = $util->findFiles($dir);
  
- @files = $util->find( dir => $dir, 
-                      [minDepth => $minDepth],
-                      [maxDepth => $maxDepth],
-                      [extension => $extension] );
+ @files = $util->findFiles( dir => $dir, 
+                           [minDepth => $minDepth],
+                           [maxDepth => $maxDepth],
+                           [extension => $extension] );
 
 =item args:
 
