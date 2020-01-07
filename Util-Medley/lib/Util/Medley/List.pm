@@ -9,6 +9,7 @@ use namespace::autoclean;
 use Kavorka '-all';
 use Data::Printer alias => 'pdump';
 use List::Util;
+use List::Compare;
 use Sort::Naturally;
 
 =head1 NAME
@@ -43,6 +44,126 @@ Util::Medley::List - utility methods for working with lists
 #########################################################################################
 
 =head1 METHODS
+
+=head2 diff
+
+Returns an array of elements that are found in list1 or list2, but not both.
+
+Wrapper around List::Compare::get_symmetric_difference().
+
+=over
+
+=item usage:
+
+  @diff = $util->diff(\@list1, \@list2, $sort);
+
+  @diff = $util->diff(list1 => \@list1,
+  		 			  list2 => \@list2,
+  		 			  sort => $sort);
+   
+=item args:
+
+=over
+
+=item list1 [ArrayRef]
+
+The first array.
+
+=item list2 [ArrayRef]
+
+The second array.
+
+=item sort [Bool]
+
+Flag to enable/disable pre-sorting.  This leverages the nsort method, within
+this class, rather than Perl's sort routine.
+
+Default is 1.
+
+=back
+
+=back
+ 
+=cut
+
+multi method diff (ArrayRef :$list1!,
+				   ArrayRef :$list2!,
+				   Bool     :$sort = 1) {
+
+	if ($sort) {
+		$list1 = [ $self->nsort(list => $list1) ];		
+		$list2 = [ $self->nsort(list => $list2) ];	
+	}
+	
+	my $lc = List::Compare->new('--unsorted', $list1, $list2);
+	
+	return $lc->get_symmetric_difference;
+}
+
+multi method diff (ArrayRef $list1, 
+				   ArrayRef $list2, 
+				   Bool 	$sort = 1) {
+
+	return $self->diff(list1 => $list1, list2 => $list2, sort => $sort);
+}
+
+=head2 differ
+
+Compares two arrays and returns true if they differ or false if not.
+
+=over
+
+=item usage:
+
+  $bool = $util->differ(\@list1, \@list2, $sort);
+
+  $bool = $util->diff(list1 => \@list1,
+  		 			  list2 => \@list2,
+  		 			  sort  => $sort);
+   
+=item args:
+
+=over
+
+=item list1 [ArrayRef]
+
+The first array.
+
+=item list2 [ArrayRef]
+
+The second array.
+
+=item sort [Bool]
+
+Flag to enable/disable pre-sorting.  This leverages the nsort method, within
+this class, rather than Perl's sort routine.
+
+Default is 1.
+
+=back
+
+=back
+ 
+=cut
+
+multi method differ (ArrayRef :$list1!,
+				     ArrayRef :$list2!,
+				     Bool     :$sort = 1) {
+
+	my @diff = $self->diff(list1 => $list1, list2 => $list2, sort => $sort);
+	if (@diff) {
+		return 1
+	}
+	
+	return 0;
+}
+
+multi method differ (ArrayRef $list1, 
+				     ArrayRef $list2, 
+				     Bool 	  $sort = 1) {
+
+	return $self->differ(list1 => $list1, list2 => $list2, sort => $sort);
+}
 
 =head2 listToMap
 
