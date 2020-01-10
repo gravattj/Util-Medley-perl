@@ -729,9 +729,11 @@ Just a pass-through to File::Slurp::read_file().
 
 =item usage:
 
- $util->slurp($file);
-
- $util->slurp(path => $file);
+ $contents = $util->slurp($file, [0|1]);
+ @contents = $util->slurp($file, [0|1]);
+ 
+ $contents = $util->slurp(path => $file, trim => [0|1]);
+ @contents = $util->slurp(path => $file, trim => [0|1]);
 
 =item args:
 
