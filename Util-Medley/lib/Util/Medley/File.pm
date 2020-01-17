@@ -9,9 +9,10 @@ use Carp;
 use File::LibMagic;
 use File::Path qw(make_path remove_tree);
 use File::Touch;
+use File::Slurp;
+use File::Which;
 use Try::Tiny;
 use Path::Iterator::Rule;
-use File::Slurp;
 
 with 'Util::Medley::Roles::Attributes::Logger';
 with 'Util::Medley::Roles::Attributes::String';
@@ -892,6 +893,44 @@ multi method unlink (Str $path) {
 		$self->Logger->debug("unlink $path");
 		unlink($path) or confess "failed to unlink $path: $!";
 	}
+}
+
+=head2 which
+
+Wrapper around File::Which::which()
+
+=over
+
+=item usage:
+
+ $path = $util->which($exe);
+ @path = $util->which($exe);
+ 
+ $path = $util->which(exe => $exe);
+ @path = $util->which(exe => $exe);
+  
+=item args:
+
+=over
+
+=item exe [Str]
+
+Name of the executable you are searching for.
+
+=back
+
+=back
+
+=cut
+
+multi method which (Str :$exe) {
+
+	return File::Which::which($exe);	
+}
+
+multi method which (Str $exe) {
+
+	return $self->which(exe => $exe);	
 }
 
 ######################################################################
