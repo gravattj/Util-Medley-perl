@@ -6,6 +6,7 @@ use namespace::autoclean;
 use Kavorka '-all';
 use Data::Printer alias => 'pdump';
 use Util::Medley::Crypt;
+use Util::Medley::Number;
 
 =head1 NAME
 
@@ -13,16 +14,27 @@ Util::Medley::Exec - proxy for cmdline to libs
 
 =cut
 
+method commify (Num :$val!) {
+
+	my $num = Util::Medley::Number->new;
+	say $num->commify($val);
+}
+
+method decommify (Str :$val!) {
+
+	my $num = Util::Medley::Number->new;
+	say $num->decommify( $val );
+}
+
 method encryptStr (Str :$str!,
 				   Str :$key) {
 
 	my %a;
 	$a{str} = $str;
 	$a{key} = $key if $key;
-	
+
 	my $crypt = Util::Medley::Crypt->new;
-	my $encrypted = $crypt->encryptStr(%a);
-	say $encrypted;
+	say $crypt->encryptStr(%a);
 }
 
 method decryptStr (Str :$str!,
@@ -31,10 +43,9 @@ method decryptStr (Str :$str!,
 	my %a;
 	$a{str} = $str;
 	$a{key} = $key if $key;
-	
+
 	my $crypt = Util::Medley::Crypt->new;
-	my $decrypted = $crypt->decryptStr(%a);
-	say $decrypted;
+	say $crypt->decryptStr(%a);
 }
 
 1;
