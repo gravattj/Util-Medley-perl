@@ -8,6 +8,7 @@ use Time::localtime;
 use Time::Local;
 use Kavorka '-all';
 use Time::ParseDate;
+use Time::HiRes;
 
 use constant SECS_PER_MIN => 60;
 use constant SECS_PER_HOUR => SECS_PER_MIN() * 60;
@@ -264,6 +265,26 @@ multi method localDateTimeIsValid (Str :$dateTime!) {
 multi method localDateTimeIsValid (Str $dateTime) {
 
 	return $self->localDateTimeIsValid(dateTime	=> $dateTime);
+}
+
+
+=head2 timeMs
+
+Returns the current epoch in milliseconds.
+
+=over
+
+=item usage:
+
+  $ms = $dt->timeMs;
+  
+=back
+   
+=cut
+
+method timeMs {
+	
+    return int(Time::HiRes::gettimeofday() * 1000);
 }
 
 1;
