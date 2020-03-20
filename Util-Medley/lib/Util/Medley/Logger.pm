@@ -16,6 +16,7 @@ use File::Basename;
 
 
 with 'Util::Medley::Roles::Attributes::DateTime';
+with 'Util::Medley::Roles::Attributes::String';
 
 =head1 NAME
 
@@ -815,7 +816,7 @@ method _assembleMsg (Str 	   :$type!,
 		push @msg, sprintf '[line %d]', ( caller($frames) )[2];
 	}
 
-	push @msg, $msg;
+	push @msg, $self->String->trim($msg);
 
 	return join( ' ', @msg );
 }
