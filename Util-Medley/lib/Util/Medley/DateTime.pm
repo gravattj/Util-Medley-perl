@@ -64,15 +64,15 @@ Returns a iso8601-date-time string.
 
 =item usage:
 
- $dt->iso8601DateTime([time]);
+ $dt->iso8601DateTime([$epoch]);
 
- $dt->iso8601DateTime([epoch => time]);
+ $dt->iso8601DateTime([epoch => $epoch]);
  
 =item args:
 
 =over
 
-=item time [Int]
+=item epoch [Int]
 
 Epoch time used to generate iso8601-date-time string.  Default is now.
 
