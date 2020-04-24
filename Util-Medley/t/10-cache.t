@@ -229,7 +229,7 @@ sub test_get {
 
 		# should succeed
 		ok( my $data = $c->get( ns => $Ns, key => $Keys[2] ) );
-		is( $data, $Data[2] );
+		is_deeply( $data, $Data[2] );
 
 		# should fail
 		eval { $c->get( key => $Keys[3] ) };
@@ -239,7 +239,7 @@ sub test_get {
 
 		# should succeed
 		ok( my $data = $c->get( key => $Keys[2] ) );
-		is( $data, $Data[2] );
+		is_deeply( $data, $Data[2] );
 
 		# should succeed
 		eval { $c->get( key => $Keys[3] ) };

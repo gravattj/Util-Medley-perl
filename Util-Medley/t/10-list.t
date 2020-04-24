@@ -45,7 +45,7 @@ my @have   = ( 'a', 'b', 'c', undef );
 my @expect = ( 'a', 'b', 'c', '' );
 
 my $aref = $list->undefsToStrings( \@have );
-is( \@expect, $aref );
+is_deeply( \@expect, $aref );
 
 #####################################
 # uniq
