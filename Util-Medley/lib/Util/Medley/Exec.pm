@@ -7,12 +7,159 @@ use Kavorka '-all';
 use Data::Printer alias => 'pdump';
 use Util::Medley::Crypt;
 use Util::Medley::Number;
+use Util::Medley::Module::Overview;
+use Text::ASCIITable;
+
+with 'Util::Medley::Roles::Attributes::String';
 
 =head1 NAME
 
 Util::Medley::Exec - proxy for cmdline to libs
 
 =cut
+
+method moduleOverview (Str  :$moduleName!,
+                       Bool :$showInheritedPrivateAttributes,
+                       Bool :$showInheritedPrivateMethods,
+                       Str  :$hideModules = 'Moose::Object') {
+
+	my @hide;
+	if ($hideModules) {
+		foreach my $pkg ( split( /,/, $hideModules ) ) {
+			push @hide, $self->String->trim($pkg);
+		}
+	}
+
+	my $mo = Util::Medley::Module::Overview->new(
+		moduleName  => $moduleName,
+		hideModules => \@hide
+	);
+
+	my $t = Text::ASCIITable->new( { headingText => "\n$moduleName\n " } );
+	$t->setOptions( { hide_HeadLine => 0, hide_HeadRow => 1 } );
+	$t->setCols(qw(a b c d));
+
+	$self->_moduleOverviewAddSection(
+		table   => $t,
+		section => 'parents',
+		rows    => [ $mo->getParents ]
+	);
+
+	$t->addRowLine;
+
+	$self->_moduleOverviewAddSection(
+		table   => $t,
+		section => 'constants',
+		rows    => [ $mo->getConstants ],
+	);
+
+	$t->addRowLine;
+
+	$self->_moduleOverviewAddSection(
+		table      => $t,
+		section    => 'attributes',
+		subsection => 'public',
+		rows       => [ $mo->getPublicAttributes ]
+	);
+
+	$t->addRow('');
+
+	$self->_moduleOverviewAddSection(
+		table      => $t,
+		section    => '',
+		subsection => 'private',
+		rows       => [ $mo->getPrivateAttributes ]
+	);
+
+	$t->addRowLine;
+
+	$self->_moduleOverviewAddSection(
+		table      => $t,
+		section    => 'methods',
+		subsection => 'public',
+		rows       => [ $mo->getPublicMethods ]
+	);
+
+	$t->addRow('');
+
+	$self->_moduleOverviewAddSection(
+		table      => $t,
+		section    => '',
+		subsection => 'private',
+		rows       => [ $mo->getPrivateMethods ]
+	);
+
+	########## inherited ###########
+
+	$t->addRowLine;
+
+	$self->_moduleOverviewAddSection(
+		table      => $t,
+		section    => 'inherited attributes',
+		subsection => 'public',
+		rows       => [ $mo->getInheritedPublicAttributes ]
+	);
+
+	if ($showInheritedPrivateAttributes) {
+		$t->addRow('');
+
+		$self->_moduleOverviewAddSection(
+			table      => $t,
+			section    => '',
+			subsection => 'private',
+			rows       => [ $mo->getInheritedPrivateAttributes ]
+		);
+	}
+
+	$t->addRowLine;
+
+	$self->_moduleOverviewAddSection(
+		table      => $t,
+		section    => 'inherited methods',
+		subsection => 'public',
+		rows       => [ $mo->getInheritedPublicMethods ]
+	);
+
+	if ($showInheritedPrivateMethods) {
+		$t->addRow('');
+
+		$self->_moduleOverviewAddSection(
+			table      => $t,
+			section    => '',
+			subsection => 'private',
+			rows       => [ $mo->getInheritedPrivateMethods ]
+		);
+	}
+
+	print $t;
+}
+
+method _moduleOverviewAddSection (Object   :$table!,
+                                  Str      :$section, 
+                                  Str      :$subsection,
+                                  ArrayRef :$rows!) {
+
+	push @$rows, '' if !@$rows;
+
+	my $first = 1;
+	foreach my $row (@$rows) {
+
+		if ($first) {
+			$first = 0;
+		}
+		else {
+			$section    = '';
+			$subsection = '';
+		}
+
+		if ( ref($row) eq 'ARRAY' ) {
+			$table->addRow( $section, $subsection, @$row );
+		}
+		else {
+			$table->addRow( $section, $subsection, $row );
+		}
+	}
+}
 
 method commify (Num :$val!) {
 
@@ -23,7 +170,7 @@ method commify (Num :$val!) {
 method decommify (Str :$val!) {
 
 	my $num = Util::Medley::Number->new;
-	say $num->decommify( $val );
+	say $num->decommify($val);
 }
 
 method encryptStr (Str :$str!,
