@@ -35,6 +35,8 @@ method moduleOverview (Str  :$moduleName!,
 		hideModules => \@hide
 	);
 
+	my $isMooseModule = $mo->isMooseModule;
+
 	my $t = Text::ASCIITable->new( { headingText => "\n$moduleName\n " } );
 	$t->setOptions( { hide_HeadLine => 0, hide_HeadRow => 1 } );
 	$t->setCols(qw(a b c d));
@@ -49,33 +51,43 @@ method moduleOverview (Str  :$moduleName!,
 
 	$self->_moduleOverviewAddSection(
 		table   => $t,
+		section => 'uses',
+		rows    => [ $mo->getImportedModules ],
+	);
+
+	$t->addRowLine;
+
+	$self->_moduleOverviewAddSection(
+		table   => $t,
 		section => 'constants',
 		rows    => [ $mo->getConstants ],
 	);
 
+	if ($isMooseModule) {
+		$t->addRowLine;
+
+		$self->_moduleOverviewAddSection(
+			table      => $t,
+			section    => 'attributes',
+			subsection => 'public',
+			rows       => [ $mo->getPublicAttributes ]
+		);
+
+		$t->addRow('');
+
+		$self->_moduleOverviewAddSection(
+			table      => $t,
+			section    => '',
+			subsection => 'private',
+			rows       => [ $mo->getPrivateAttributes ]
+		);
+	}
+
 	$t->addRowLine;
 
 	$self->_moduleOverviewAddSection(
 		table      => $t,
-		section    => 'attributes',
-		subsection => 'public',
-		rows       => [ $mo->getPublicAttributes ]
-	);
-
-	$t->addRow('');
-
-	$self->_moduleOverviewAddSection(
-		table      => $t,
-		section    => '',
-		subsection => 'private',
-		rows       => [ $mo->getPrivateAttributes ]
-	);
-
-	$t->addRowLine;
-
-	$self->_moduleOverviewAddSection(
-		table      => $t,
-		section    => 'methods',
+		section    => $isMooseModule ? 'methods' : 'subs',
 		subsection => 'public',
 		rows       => [ $mo->getPublicMethods ]
 	);
@@ -91,31 +103,41 @@ method moduleOverview (Str  :$moduleName!,
 
 	########## inherited ###########
 
-	$t->addRowLine;
-
-	$self->_moduleOverviewAddSection(
-		table      => $t,
-		section    => 'inherited attributes',
-		subsection => 'public',
-		rows       => [ $mo->getInheritedPublicAttributes ]
-	);
-
-	if ($showInheritedPrivateAttributes) {
-		$t->addRow('');
+	if ($isMooseModule) {
+		$t->addRowLine;
 
 		$self->_moduleOverviewAddSection(
 			table      => $t,
-			section    => '',
-			subsection => 'private',
-			rows       => [ $mo->getInheritedPrivateAttributes ]
+			section    => 'inherited attributes',
+			subsection => 'public',
+			rows       => [ $mo->getInheritedPublicAttributes ]
 		);
+
+		if ($showInheritedPrivateAttributes) {
+			$t->addRow('');
+
+			$self->_moduleOverviewAddSection(
+				table      => $t,
+				section    => '',
+				subsection => 'private',
+				rows       => [ $mo->getInheritedPrivateAttributes ]
+			);
+		}
 	}
 
 	$t->addRowLine;
 
+    my $section;
+    if ($isMooseModule) {
+        $section = "inherited methods"; 	
+    }
+    else {
+        $section = "imported subs";
+    } 
+    
 	$self->_moduleOverviewAddSection(
-		table      => $t,
-		section    => 'inherited methods',
+		table => $t,
+		section => $section,
 		subsection => 'public',
 		rows       => [ $mo->getInheritedPublicMethods ]
 	);

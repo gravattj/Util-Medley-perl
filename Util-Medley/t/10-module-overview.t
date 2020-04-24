@@ -19,22 +19,29 @@ ok(@imported);
 my @parents = $mo->getParents;
 ok(@parents);
 
-my @methods = $mo->getMethods;
-ok(@methods);
+my @publicMethods = $mo->getPublicMethods;
+ok(@publicMethods);
 
-my @inherited = $mo->getInheritedMethods;
-ok(@inherited);
+my @privateMethods = $mo->getPrivateMethods;
+
+my @inheritedPublicMethods = $mo->getInheritedPublicMethods;
+pdump @inheritedPublicMethods;
+
+my @inheritedPrivateMethods = $mo->getInheritedPrivateMethods;
+pdump @inheritedPrivateMethods;
 
 $mo = Util::Medley::Module::Overview->new(
-	moduleName                => 'Util::Medley::String',
-	pruneInheritedMethodsFrom => ['Moose::Object']
+	moduleName  => 'Util::Medley::String',
+	hideModules => ['Moose::Object']
 );
 ok($mo);
 
-ok( scalar $mo->getImported == scalar @imported );
-ok( scalar $mo->getParents == scalar @parents );
-ok( scalar $mo->getMethods == scalar @methods );
-ok( scalar $mo->getInheritedMethods == 0 );
+ok( $mo->getImportedModules == @imported );
+ok( $mo->getParents == @parents );
+ok( $mo->getPublicMethods == @publicMethods );
+ok( $mo->getPrivateMethods == @privateMethods );
+ok( $mo->getInheritedPublicMethods == @inheritedPublicMethods );
+ok( $mo->getInheritedPrivateMethods == @inheritedPrivateMethods );
 
 done_testing;
 

@@ -7,6 +7,7 @@ use Kavorka '-all';
 use Data::Printer alias => 'pdump';
 use Module::Overview;
 use constant;
+use Module::Load;
 
 with 'Util::Medley::Roles::Attributes::List';
 
@@ -162,14 +163,14 @@ Returns a list of modules used by the module.
 
 method getImportedModules {
 
-    my $mo = $self->_moduleOverview;
+	my $mo = $self->_moduleOverview;
 
-    my @imported;
-    if ( $mo->{uses} ) {
-        @imported = @{ $mo->{uses} };
-    }
+	my @imported;
+	if ( $mo->{uses} ) {
+		@imported = @{ $mo->{uses} };
+	}
 
-    return $self->List->nsort(@imported);
+	return $self->List->nsort(@imported);
 }
 
 =head2 getParents
@@ -202,9 +203,8 @@ Returns a list of constants.
 
 method getConstants {
 
-    return @{ $self->_getMyConstants };
+	return @{ $self->_getMyConstants };
 }
-
 
 =head2 getPublicAttributes
 
@@ -214,15 +214,15 @@ Returns a list of public attributes.
 
 method getPublicAttributes {
 
-    my @public;
-    foreach my $attr ( @{ $self->_getMyAttributes } ) {
+	my @public;
+	foreach my $attr ( @{ $self->_getMyAttributes } ) {
 
-        if ( $attr !~ /^_/ ) {
-            push @public, $attr;
-        }
-    }
+		if ( $attr !~ /^_/ ) {
+			push @public, $attr;
+		}
+	}
 
-    return @public;
+	return @public;
 }
 
 =head2 getInheritedPublicAttributes
@@ -233,18 +233,17 @@ Returns a list of inherited public attributes.
 
 method getInheritedPublicAttributes {
 
-    my @public;
-    foreach my $attr ( @{ $self->_getInheritedAttributes } ) {
-        
-        my ($name, $from) = @$attr;
-        if ( $name !~ /^_/ ) {
-            push @public, $attr;
-        }
-    }
+	my @public;
+	foreach my $attr ( @{ $self->_getInheritedAttributes } ) {
 
-    return @public;
+		my ( $name, $from ) = @$attr;
+		if ( $name !~ /^_/ ) {
+			push @public, $attr;
+		}
+	}
+
+	return @public;
 }
-
 
 =head2 getPrivateAttributes
 
@@ -254,15 +253,15 @@ Returns a list of private attributes.
 
 method getPrivateAttributes {
 
-    my @private;
-    foreach my $attr (@{ $self->_getMyAttributes } ) {
+	my @private;
+	foreach my $attr ( @{ $self->_getMyAttributes } ) {
 
-        if ( $attr =~ /^_/ ) {
-            push @private, $attr;
-        }
-    }
+		if ( $attr =~ /^_/ ) {
+			push @private, $attr;
+		}
+	}
 
-    return @private;
+	return @private;
 }
 
 =head2 getInheritedPrivateAttributes
@@ -273,16 +272,16 @@ Returns a list of inherited private attributes.
 
 method getInheritedPrivateAttributes {
 
-    my @private;
-    foreach my $aref ( @{ $self->_getInheritedAttributes } ) {
-        
-        my ( $name, $from ) = @$aref;
-        if ( $name =~ /^_/ ) {
-            push @private, [@$aref];
-        }
-    }
+	my @private;
+	foreach my $aref ( @{ $self->_getInheritedAttributes } ) {
 
-    return @private;
+		my ( $name, $from ) = @$aref;
+		if ( $name =~ /^_/ ) {
+			push @private, [@$aref];
+		}
+	}
+
+	return @private;
 }
 
 =head2 getPublicMethods
@@ -293,20 +292,20 @@ Returns a list of public methods.
 
 method getPublicMethods {
 
-    my @public;
-    foreach my $method ( @{ $self->_getMyMethods } ) {
+	my @public;
+	foreach my $method ( @{ $self->_getMyMethods } ) {
 
-        # moose objects seems to end up with a public method called meta()
-        # here we skip it if we encounter it.
-        if ( $self->_scrubParens($method) ne 'meta' ) {
+		# moose objects seems to end up with a public method called meta()
+		# here we skip it if we encounter it.
+		if ( $self->_scrubParens($method) ne 'meta' ) {
 
-            if ( $method !~ /^_/ ) {
-                push @public, $method;
-            }
-        }
-    }
+			if ( $method !~ /^_/ ) {
+				push @public, $method;
+			}
+		}
+	}
 
-    return @public;
+	return @public;
 }
 
 =head2 getInheritedPublicMethods
@@ -336,14 +335,14 @@ Returns a list of private methods.
 
 method getPrivateMethods {
 
-    my @private;
-    foreach my $method ( @{ $self->_getMyMethods } ) {
-        if ( $method =~ /^_/ ) {
-            push @private, $method;
-        }
-    }
+	my @private;
+	foreach my $method ( @{ $self->_getMyMethods } ) {
+		if ( $method =~ /^_/ ) {
+			push @private, $method;
+		}
+	}
 
-    return @private;
+	return @private;
 }
 
 =head2 getInheritedPrivateMethods
@@ -363,6 +362,29 @@ method getInheritedPrivateMethods {
 	}
 
 	return @private;
+}
+
+method isMooseModule (Str $module?) {
+
+    $module = $self->moduleName if !$module;
+    load($module);
+    
+    my $c = $self->_classTypeCache;
+    if ( !defined $c->{$module} ) {
+
+        if ( $module->isa('Moose::Object') ) {
+            $c->{$module} = 'moose';
+        }
+        else {
+            $c->{$module} = 'notmoose';
+        }
+    }
+            
+    if ( $c->{$module} eq 'moose' ) {
+        return 1;
+    }
+
+    return 0;
 }
 
 ##############################################################
@@ -406,36 +428,14 @@ method _scrubParens (Str $value) {
 	return $value;
 }
 
-method _isMooseClass (Str $module?) {
-
-	$module = $self->moduleName if !$module;
-
-	my $c = $self->_classTypeCache;
-	if ( !defined $c->{$module} ) {
-
-		if ( $module->isa('Moose::Object') ) {
-			$c->{$module} = 'moose';
-		}
-		else {
-			$c->{$module} = 'notmoose';
-		}
-	}
-
-	if ( $c->{$module} eq 'moose' ) {
-		return 1;
-	}
-
-	return 0;
-}
-
 method _getInheritedMethods (--> ArrayRef) {
-    
-    return $self->_inheritedMethods;	
+
+	return $self->_inheritedMethods;
 }
 
 method _getInheritedAttributes (--> ArrayRef) {
 
-    return $self->_inheritedAttributes;	
+	return $self->_inheritedAttributes;
 }
 
 method _getMyMethods (--> ArrayRef) {
@@ -470,9 +470,9 @@ method _buildInheritedMethods {
 
 		my ( $name, $from ) = @$aref;
 		next if $self->_isConstant( $from, $name );
-        next if $self->_isMooseAttribute( $from, $name );
-        
-    	push @methods, $aref;
+		next if $self->_isMooseAttribute( $from, $name );
+
+		push @methods, $aref;
 	}
 
 	return \@methods;
@@ -480,20 +480,20 @@ method _buildInheritedMethods {
 
 method _buildInheritedAttributes {
 
-    my @attr;
+	my @attr;
 
-    foreach my $aref ( @{ $self->_getInheritedMethodsAndAttributes } ) {
+	foreach my $aref ( @{ $self->_getInheritedMethodsAndAttributes } ) {
 
-        my ( $name, $from ) = @$aref;
-        $name = $self->_scrubParens($name);
-        
-        next if $self->_isConstant( $from, $name );
-        next if !$self->_isMooseAttribute( $from, $name );
-        
-        push @attr, [$name, $from];
-    }
+		my ( $name, $from ) = @$aref;
+		$name = $self->_scrubParens($name);
 
-    return \@attr;
+		next if $self->_isConstant( $from, $name );
+		next if !$self->_isMooseAttribute( $from, $name );
+
+		push @attr, [ $name, $from ];
+	}
+
+	return \@attr;
 }
 
 method _buildMyMethods {
@@ -503,7 +503,7 @@ method _buildMyMethods {
 	foreach my $name ( @{ $self->_getMyMethodsAndAttributes } ) {
 
 		if ( !$self->_isConstant( $self->moduleName, $name ) ) {
-			if ( $self->_isMooseClass ) {
+			if ( $self->isMooseModule ) {
 
 				my $bool = $self->_isMooseAttribute( $self->moduleName, $name );
 				if ( !$bool ) {
@@ -521,7 +521,7 @@ method _buildMyMethods {
 
 method _getMooseMeta (Str $module) {
 
-	if ( $self->_isMooseClass($module) ) {
+	if ( $self->isMooseModule($module) ) {
 
 		my $c = $self->_mooseMetaCache;
 		if ( !$c->{$module} ) {
@@ -560,7 +560,7 @@ method _buildMyAttributes {
 
 	my @attr;
 
-	if ( $self->_isMooseClass ) {
+	if ( $self->isMooseModule ) {
 
 		foreach my $name ( @{ $self->_getMyMethodsAndAttributes } ) {
 
@@ -575,14 +575,40 @@ method _buildMyAttributes {
 }
 
 method _getInheritedMethodsAndAttributes {
-	
-    return $self->_inheritedMethodsAndAttributes;	
+
+	return $self->_inheritedMethodsAndAttributes;
 }
 
 method _getMyMethodsAndAttributes {
 
 	return $self->_myMethodsAndAttributes;
 }
+
+=pod
+
+method _buildMyMethodsAndAttributes {
+
+	my $mo = $self->_moduleOverview;
+
+	my @methods;
+	push @methods, @{ $mo->{methods} }          if $mo->{methods};
+    push @methods, @{ $mo->{methods_imported} } if $mo->{methods_imported};
+
+	my @sorted = $self->List->nsort(@methods);
+	my @parsed = $self->_parseMethods( \@sorted );
+
+	my @mine;
+	foreach my $aref (@parsed) {
+		my ( $name, $from ) = @$aref;
+		if ( !$from ) {
+			push @mine, $name;
+		}
+	}
+
+	return \@mine;
+}
+
+=cut
 
 method _buildMyMethodsAndAttributes {
 
@@ -599,11 +625,48 @@ method _buildMyMethodsAndAttributes {
 	foreach my $aref (@parsed) {
 		my ( $name, $from ) = @$aref;
 		if ( !$from ) {
-			push @mine, $name;
+			my $module = $self->_isImportedSub($name);
+			if ( !$module ) {
+				push @mine, $name;
+			}
 		}
 	}
 
 	return \@mine;
+}
+
+method _getModuleExports (Str $moduleName) {
+
+	my @exports;
+
+	if ( $moduleName->isa('Exporter') ) {
+        
+        # TODO: this could be improved by testing for exactly
+        # what is imported.  For now, just assumes subs in
+        # EXPORT_OK were imported.
+		no strict 'refs';
+		push @exports, @{ sprintf '%s::EXPORT',    $moduleName };
+		push @exports, @{ sprintf '%s::EXPORT_OK', $moduleName };
+		@exports = $self->List->uniq(@exports);
+	}
+
+	return @exports;
+}
+
+method _isImportedSub (Str $subName) {
+
+	$subName = $self->_scrubParens($subName);
+
+	foreach my $use ( $self->getImportedModules ) {
+		
+		my @exports = $self->_getModuleExports($use);
+		my %map     = $self->List->listToMap(@exports);
+		if ( $map{$subName} ) {
+			return $use;
+		}
+	}
+
+	return;
 }
 
 method _buildInheritedMethodsAndAttributes {
@@ -621,7 +684,13 @@ method _buildInheritedMethodsAndAttributes {
 	foreach my $aref (@parsed) {
 		my ( $name, $from ) = @$aref;
 		if ($from) {
-			push @inherited, $aref;
+			push @inherited, [@$aref];
+		}
+		else {
+			my $module = $self->_isImportedSub($name);
+			if ($module) {
+				push @inherited, [ $name, $module ];
+			}
 		}
 	}
 
@@ -637,7 +706,7 @@ method _buildInheritedMethodsAndAttributes {
 			}
 		}
 
-		return \@pruned;
+		@inherited = @pruned;
 	}
 
 	return \@inherited;
