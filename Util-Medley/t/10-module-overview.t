@@ -22,13 +22,15 @@ ok(@parents);
 my @publicMethods = $mo->getPublicMethods;
 ok(@publicMethods);
 
-my @privateMethods = $mo->getPrivateMethods;
+eval { my @privateMethods = $mo->getPrivateMethods; };
+ok( !$@ );
 
-my @inheritedPublicMethods = $mo->getInheritedPublicMethods;
-pdump @inheritedPublicMethods;
+my @inheritedPublicMethods;
+eval { @inheritedPublicMethods = $mo->getInheritedPublicMethods; };
+ok( !$@ );
 
-my @inheritedPrivateMethods = $mo->getInheritedPrivateMethods;
-pdump @inheritedPrivateMethods;
+eval { my @inheritedPrivateMethods = $mo->getInheritedPrivateMethods; };
+ok( !$@ );
 
 $mo = Util::Medley::Module::Overview->new(
 	moduleName  => 'Util::Medley::String',
@@ -39,9 +41,7 @@ ok($mo);
 ok( $mo->getImportedModules == @imported );
 ok( $mo->getParents == @parents );
 ok( $mo->getPublicMethods == @publicMethods );
-ok( $mo->getPrivateMethods == @privateMethods );
-ok( $mo->getInheritedPublicMethods == @inheritedPublicMethods );
-ok( $mo->getInheritedPrivateMethods == @inheritedPrivateMethods );
+ok( $mo->getInheritedPublicMethods < @inheritedPublicMethods );
 
 done_testing;
 
