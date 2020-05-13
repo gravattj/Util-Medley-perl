@@ -12,11 +12,16 @@ Util::Medley::Hostname - Utilities for dealing with hostnames.
 
 =cut
 
+########################################################
+
 =head1 SYNOPSIS
 
-  my $util = Util::Medley::Host->new;
-  my ($hostname, $domain) = $util->parseHostname('foobar.example.com');
+  $util = Util::Medley::Host->new;
   
+  $bool = $util->isFqdn('foobar.example.com');
+  ($hostname, $domain) = $util->parseHostname('foobar.example.com');
+  $shortHostname = $util->stripDomain('foobar.example.com');
+    
 =cut
 
 ########################################################
@@ -33,6 +38,47 @@ All methods confess on error.
 
 =head1 METHODS
 
+=head2 isFqdn
+
+Checks if a given hostname is fully qualified.
+
+=over
+
+=item usage:
+
+  $bool = $util->isFqdn('foobar.example.com');
+  
+  $bool = $util->isFqdn(hostname => 'foobar.example.com');
+  
+=item args:
+
+=over
+
+=item hostname [Str]
+
+Hostname to be checked.
+
+=back
+
+=back
+
+=cut
+
+multi method isFqdn (Str :$hostname!) {
+
+    my ($h, $d) = $self->parseHostname(hostname => $hostname);
+    if ($h and $d) {
+        return 1;   
+    } 
+    
+    return 0;
+}
+
+multi method isFqdn (Str $hostname) {
+
+    return $self->isFqdn(hostname => $hostname); 
+}
+
 =head2 parseHostname
 
 Parses the specified hostname into hostname and domain (if exists).
@@ -41,10 +87,10 @@ Parses the specified hostname into hostname and domain (if exists).
 
 =item usage:
 
-  my ($hostname, $domain) = 
+  ($hostname, $domain) = 
       $util->parseHostname('foobar.example.com');
   
-  my ($hostname, $domain) = 
+  ($hostname, $domain) = 
       $util->parseHostname(hostname => 'foobar.example.com');
   
 =item args:
@@ -76,17 +122,17 @@ multi method parseHostname (Str $hostname) {
 }
 
 
-=head2 isFqdn
+=head2 stripDomain
 
-Checks if a given hostname is fully qualified.
+Returns short-hostname for the provided hostname.
 
 =over
 
 =item usage:
 
-  my $bool = $util->isFqdn('foobar.example.com');
+  $hostname = $util->stripDomain('foobar.example.com');
   
-  my $bool = $util->isFqdn(hostname => 'foobar.example.com');
+  $hostname = $util->stripDomain(hostname => 'foobar.example.com');
   
 =item args:
 
@@ -94,7 +140,7 @@ Checks if a given hostname is fully qualified.
 
 =item hostname [Str]
 
-Hostname to be checked.
+Hostname to be stripped.
 
 =back
 
@@ -102,19 +148,15 @@ Hostname to be checked.
 
 =cut
 
-multi method isFqdn (Str :$hostname!) {
+multi method stripDomain (Str :$hostname!) {
 
     my ($h, $d) = $self->parseHostname(hostname => $hostname);
-    if ($h and $d) {
-        return 1;	
-    } 
-    
-    return 0;
+    return $h;
 }
 
-multi method isFqdn (Str $hostname) {
+multi method stripDomain (Str $hostname) {
 
-    return $self->isFqdn(hostname => $hostname); 
+    return $self->stripDomain(hostname => $hostname); 
 }
 
 1;
