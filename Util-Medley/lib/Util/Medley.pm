@@ -8,6 +8,7 @@ with 'Util::Medley::Roles::Attributes::Crypt';
 with 'Util::Medley::Roles::Attributes::DateTime';
 with 'Util::Medley::Roles::Attributes::File';
 with 'Util::Medley::Roles::Attributes::File::Zip';
+with 'Util::Medley::Roles::Attributes::Hostname';
 with 'Util::Medley::Roles::Attributes::List';
 with 'Util::Medley::Roles::Attributes::Logger';
 with 'Util::Medley::Roles::Attributes::Spawn';
