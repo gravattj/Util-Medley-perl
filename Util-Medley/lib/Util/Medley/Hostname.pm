@@ -110,10 +110,14 @@ Hostname you wish to parse.
 multi method parseHostname (Str :$hostname!) {
 
     my @a = split(/\./, $hostname);
-    my $host = shift @a;
-    my $domain = join '.', @a;
+    if (@a) {
+        my $host = shift @a;
+        my $domain = join '.', @a;
+     
+        return ($host, $domain); 	
+    }
     
-    return ($host, $domain); 	
+    return $hostname;
 }
 
 multi method parseHostname (Str $hostname) {

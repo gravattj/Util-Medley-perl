@@ -28,4 +28,7 @@ ok($hostname eq 'foobar');
 $hostname = $util->stripDomain('foobar');
 ok($hostname eq 'foobar');
 
+$hostname = $util->stripDomain('');
+ok($hostname eq '');
+
 done_testing;
