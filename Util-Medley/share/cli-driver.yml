@@ -46,6 +46,7 @@ module-overview:
       flags:
         show-inherited-private-attributes: showInheritedPrivateAttributes
         show-inherited-private-methods: showInheritedPrivateMethods
+        view-clean: viewClean
              
 commify:
   class:

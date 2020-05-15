@@ -135,7 +135,6 @@ has _inheritedMethodsAndAttributes => (
 has _moduleOverview => (
 	is      => 'ro',
 	isa     => 'HashRef',
-	lazy    => 1,
 	builder => '_buildModuleOverview',
 );
 
@@ -295,9 +294,11 @@ method getPublicMethods {
 	my @public;
 	foreach my $method ( @{ $self->_getMyMethods } ) {
 
+       $method = $self->_scrubParens($method);
+       
 		# moose objects seems to end up with a public method called meta()
 		# here we skip it if we encounter it.
-		if ( $self->_scrubParens($method) ne 'meta' ) {
+		if ( $method ne 'meta' ) {
 
 			if ( $method !~ /^_/ ) {
 				push @public, $method;
