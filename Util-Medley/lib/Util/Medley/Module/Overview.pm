@@ -294,11 +294,10 @@ method getPublicMethods {
 	my @public;
 	foreach my $method ( @{ $self->_getMyMethods } ) {
 
-       $method = $self->_scrubParens($method);
-       
 		# moose objects seems to end up with a public method called meta()
 		# here we skip it if we encounter it.
-		if ( $method ne 'meta' ) {
+	    my $scrubbed = $self->_scrubParens($method);
+		if ( $scrubbed ne 'meta' ) {
 
 			if ( $method !~ /^_/ ) {
 				push @public, $method;
