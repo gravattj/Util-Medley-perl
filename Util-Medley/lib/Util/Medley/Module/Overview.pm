@@ -205,6 +205,13 @@ method getConstants {
 	return @{ $self->_getMyConstants };
 }
 
+=head2 getAllPublicAttributes
+
+Combines and sorts the results from getPublicAttributes() and  
+getInheritedPublicAttributes().
+
+=cut
+
 method getAllPublicAttributes {
 
 	my @all = $self->getPublicAttributes;
@@ -236,7 +243,8 @@ method getAllPublicAttributes {
 
 =head2 getPublicAttributes
 
-Returns a list of public attributes.
+Returns a list of public attributes.  Each item in the list is an ArrayRef
+of [ name, src ].
 
 =cut
 
@@ -265,7 +273,8 @@ method getPublicAttributes {
 
 =head2 getInheritedPublicAttributes
 
-Returns a list of inherited public attributes.
+Returns a list of inherited public attributes.  Each item in the list is an 
+ArrayRef of [ name, src ]. 
 
 =cut
 
@@ -285,7 +294,8 @@ method getInheritedPublicAttributes {
 
 =head2 getPrivateAttributes
 
-Returns a list of private attributes.
+Returns a list of private attributes.  Each item in the list is an ArrayRef
+of [ name, src ].
 
 =cut
 
@@ -304,7 +314,8 @@ method getPrivateAttributes {
 
 =head2 getInheritedPrivateAttributes
 
-Returns a list of inherited private attributes.
+Returns a list of inherited private attributes.  Each item in the list 
+is an ArrayRef of [ name, src ].
 
 =cut
 
@@ -321,6 +332,13 @@ method getInheritedPrivateAttributes {
 
 	return @private;
 }
+
+=head2 getAllPublicMethods
+
+Combines and sorts the results from getPublicMethods() and  
+getInheritedPublicMethods().
+
+=cut
 
 method getAllPublicMethods {
 
@@ -353,7 +371,8 @@ method getAllPublicMethods {
 
 =head2 getPublicMethods
 
-Returns a list of public methods.
+Returns a list of public methods.  Each item in the list is an ArrayRef
+of [ name, src ].
 
 =cut
 
@@ -393,7 +412,8 @@ method getPublicMethods {
 
 =head2 getInheritedPublicMethods
 
-Returns a list of inherited public methods.
+Returns a list of inherited public methods.  Each item in the list is an 
+ArrayRef of [ name, src ].
 
 =cut
 
@@ -414,7 +434,8 @@ method getInheritedPublicMethods {
 
 =head2 getPrivateMethods
 
-Returns a list of private methods.
+Returns a list of private methods.  Each item in the list is an ArrayRef
+of [ name, src ].
 
 =cut
 
@@ -432,7 +453,8 @@ method getPrivateMethods {
 
 =head2 getInheritedPrivateMethods
 
-Returns a list of inherited private methods.
+Returns a list of inherited private methods.  Each item in the list is an 
+ArrayRef of [ name, src ].
 
 =cut
 
