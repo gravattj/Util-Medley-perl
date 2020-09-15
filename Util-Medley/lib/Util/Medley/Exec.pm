@@ -8,11 +8,13 @@ use Data::Printer alias => 'pdump';
 use Util::Medley::Crypt;
 use Util::Medley::Number;
 use Util::Medley::Module::Overview;
+use Util::Medley::YAML;
 use Text::ASCIITable;
 use Text::Table;
 
-with 'Util::Medley::Roles::Attributes::String',
-  'Util::Medley::Roles::Attributes::List';
+with 
+    'Util::Medley::Roles::Attributes::String',
+    'Util::Medley::Roles::Attributes::List';
 
 =head1 NAME
 
@@ -109,6 +111,13 @@ method decryptStr (Str :$str!,
 
 	my $crypt = Util::Medley::Crypt->new;
 	say $crypt->decryptStr(%a);
+}
+
+method yamlBeautifyFile (Str :$file!,
+                         Int :$sortDepth = 0) {
+
+	my $yaml = Util::Medley::YAML->new;
+	$yaml->yamlBeautifyFile(path => $file, sortDepth => $sortDepth);
 }
 
 ###############################################################

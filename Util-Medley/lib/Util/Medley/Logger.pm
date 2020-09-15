@@ -14,7 +14,6 @@ use Fcntl ":flock";
 use File::Path 'make_path';
 use File::Basename;
 
-
 with 'Util::Medley::Roles::Attributes::DateTime';
 with 'Util::Medley::Roles::Attributes::String';
 
@@ -860,8 +859,8 @@ method _getLogLevel () {
 }
 
 method _isLogLevelValid (Str $level) {
-
-	if ( $self->_logLevelMap->{$level} ) {
+	
+    if ( $self->_logLevelMap->{$level} ) {
 		return 1;
 	}
 
