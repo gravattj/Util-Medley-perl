@@ -859,8 +859,8 @@ method _getLogLevel () {
 }
 
 method _isLogLevelValid (Str $level) {
-	
-    if ( $self->_logLevelMap->{$level} ) {
+
+    if ( defined $self->_logLevelMap->{$level} ) {
 		return 1;
 	}
 
