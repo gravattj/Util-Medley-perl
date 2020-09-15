@@ -43,29 +43,18 @@ sub test_write {
 	my $path = 't/writetest.txt';
 	$File->unlink($path) if -f $path;
 
-	eval { $File->write( path => $path, content => 'bogusdata' ); };
+	eval { $File->write( $path, 'bogusdata' ); };
 	ok( !$@ );
 	ok( -f $path );
 
-	eval {
-		$File->write(
-			path    => $path,
-			content => 'bogusdata',
-			opts    => { no_clobber => 1 }
-		);
-	};
+	eval { $File->write( $path, 'bogusdata', { no_clobber => 1 } ); };
 	ok($@);
 
-	eval {
-		$File->write(
-			path    => $path,
-			content => 'bogusdata',
-			opts    => { no_clobber => 0 }
-		);
-	};
+	eval { $File->write( $path, 'bogusdata',
+			{ no_clobber => 0 } ); };
 	ok( !$@ );
-	
-	   $File->unlink($path);
+
+	$File->unlink($path);
 }
 
 sub test_slurp {

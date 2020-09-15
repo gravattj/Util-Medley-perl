@@ -1040,9 +1040,14 @@ multi method write (Str           :$path!,
 
 multi method write (Str           $path!, 
                     Str|ArrayRef  $content!,
-                    HashRef       $opts) {
-                    	
-    return $self->write(@_);
+                    HashRef       $opts?) {
+
+    my %a;
+    $a{path} = $path;
+    $a{content} = $content;
+    $a{opts} = $opts if $opts;
+                        	
+    return $self->write(%a);
 }
 
 
