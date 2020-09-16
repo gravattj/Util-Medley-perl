@@ -13,6 +13,7 @@ use Text::ASCIITable;
 use Text::Table;
 
 with 
+    'Util::Medley::Roles::Attributes::Logger',
     'Util::Medley::Roles::Attributes::String',
     'Util::Medley::Roles::Attributes::List';
 
