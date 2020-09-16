@@ -148,6 +148,49 @@ multi method isInt (Str $str) {
 	return $self->isInt(str => $str);	
 }
 
+=head2 isUpper
+
+todo
+
+=over
+
+=item usage:
+
+  $bool = $util->isUpper($str);
+
+  $bool = $util->isUpper(str => $str);
+
+=item args:
+
+=over
+
+=item str [Str]
+
+The string you wish to check for uppercase.
+
+=back
+
+=back
+ 
+=cut
+
+multi method isUpper (Str :$str!) {
+
+    my $lookfor = 'A-Z0-9_()';
+    
+    if ($str =~ /^[$lookfor]+$/) {
+        return 1;   
+    }
+    
+    return 0;
+}
+
+multi method isUpper (Str $str) {
+
+    return $self->isUpper(str => $str);   
+}
+
+
 =head2 lTrim
 
 Just a pass-through to String::Util::lTrim.
