@@ -9,6 +9,8 @@ use File::Path 'remove_tree';
 use Data::Printer alias => 'pdump';
 use Kavorka qw(-all);
 
+with 'Util::Medley::Roles::Attributes::Logger';
+
 ########################################################
 
 =head1 NAME
@@ -384,10 +386,11 @@ The cache namespace.
 
 multi method get (Str :$key!,
 				  Str :$ns) {
-
+	
 	if ( $self->l1Enabled ) {
 		my $data = $self->_l1Get(@_);
 		if ($data) {
+		    $self->Logger->verbose( "L1 cache hit - get ('$ns', '$key')");
 			return $data;
 		}
 	}
@@ -395,6 +398,7 @@ multi method get (Str :$key!,
 	if ( $self->l2Enabled ) {
 		my $data = $self->_l2Get(@_);
 		if ($data) {
+		    $self->Logger->verbose( "L2 cache hit - get ('$ns', '$key')");
 			$self->_l1Set(@_, data => $data);
 			return $data;
 		}
@@ -534,6 +538,8 @@ multi method set (Str :$key!,
             	  Any :$data!,
             	  Str :$ns) {
 
+   $self->Logger->verbose("cache set ('$ns', '$key')");
+              
 	$self->_l1Set(@_) if $self->l1Enabled;
 	$self->_l2Set(@_) if $self->l2Enabled;
 
