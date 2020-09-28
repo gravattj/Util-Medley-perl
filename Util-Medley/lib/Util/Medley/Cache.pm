@@ -386,7 +386,9 @@ The cache namespace.
 
 multi method get (Str :$key!,
 				  Str :$ns) {
-	
+
+    $ns = $self->_getNamespace($ns) if !$ns;
+    	
 	if ( $self->l1Enabled ) {
 		my $data = $self->_l1Get(@_);
 		if ($data) {
@@ -538,7 +540,8 @@ multi method set (Str :$key!,
             	  Any :$data!,
             	  Str :$ns) {
 
-   $self->Logger->verbose("cache set ('$ns', '$key')");
+    $ns = $self->_getNamespace($ns) if !$ns;
+    $self->Logger->verbose("cache set ('$ns', '$key')");
               
 	$self->_l1Set(@_) if $self->l1Enabled;
 	$self->_l2Set(@_) if $self->l2Enabled;
