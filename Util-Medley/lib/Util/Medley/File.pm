@@ -250,7 +250,7 @@ The file path.
 
 multi method dirname (Str :$path!) {
 
-	return $self-dirname($path);
+	return $self->dirname($path);
 }
 
 multi method dirname (Str $path) {
