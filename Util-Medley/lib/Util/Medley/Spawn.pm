@@ -55,7 +55,7 @@ write to log if enabled.
  
  ($stdout, $stderr, $exit) = $util->capture(cmd   => $cmd, 
                                            [stdin => $stdin],
-                                           [wantArrayRefs => $wantArrayRef])
+                                           [wantArrayRef => $wantArrayRef])
  
 =item args:
 
@@ -81,7 +81,7 @@ is 0.
 =cut
 
 multi method capture(
-	ArrayRef|Str :$cmd !,
+	ArrayRef|Str :$cmd!,
 	ArrayRef|Str :$stdin,
 	        Bool :$wantArrayRef
   )
@@ -124,8 +124,7 @@ multi method capture(
 }
 
 multi method capture(ArrayRef|Str $cmd, 
-                     ArrayRef|Str $stdin
-	? )
+                     ArrayRef|Str $stdin? )
 {
 
 	my %a;
