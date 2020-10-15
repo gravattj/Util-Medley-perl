@@ -19,17 +19,21 @@ Util::Medley::Linux::Yum - Class for interacting with YUM
 =head1 SYNOPSIS
 
   my $yum = Util::Medley::Yum->new;
-
+  
   #
   # positional  
   #
-  say $yum->TODO(TODO);
-
+  $aref = $yum->repoList([$enabled], [$disabled]);
+                        
   #
   # named pair
   #
-  say $yum->TODO(TODO=>TODO);
-   
+  $aref = $yum->repoList([enabled  => 0|1],
+                         [disabled => 0|1]); 
+  
+  $aref = $yum->repoQuery ([all       => 0|1],
+                           [installed => 0|1],
+                           [repoId    => $repoId]);
 =cut
 
 ########################################################
@@ -99,8 +103,8 @@ Default: 0
 
 =cut
 
-method repoList (Bool :$enabled = 1,
-                 Bool :$disabled = 0) {
+multi method repoList (Bool :$enabled = 1,
+                       Bool :$disabled = 0) {
 
 	my @cmd = ( 'yum', 'repolist', '-v', 'all' );
 
@@ -156,10 +160,77 @@ method repoList (Bool :$enabled = 1,
 	return $reposAref;
 }
 
-# TODO
-#multi method repoList () {
-#
-#}
+multi method repoList (Bool $enabled,
+                       Bool $disabled) {
+
+    my %a;
+    $a{enabled} = $enabled if defined $enabled;
+    $a{disabled} = $disabled if defined $disabled;
+    
+    return $self->repoList(%a);
+}
+
+
+=head2 repoQuery
+
+Captures the output from the 'repoquery' command.
+
+Returns: ArrayRef[Str]
+
+=over
+
+=item usage:
+
+  $aref = $yum->repoQuery ([all       => 0|1],
+                           [installed => 0|1],
+                           [repoId    => $repoId]);
+
+ Positional params not supported for this method due to
+ the volume of options.
+  
+=item args:
+
+=over
+
+=item all [Bool] (optional)
+
+Equivalent to the --all flag on the cli.
+
+Default: 0
+
+=item installed [Bool] (optional)
+
+Equivalent to the --installed flag on the cli.
+
+Default: 0
+
+=item repoId [Str] (optional) 
+
+Equivalent to the --repoid option on the cli.
+
+=back
+
+=back
+
+=cut
+
+method repoQuery (Bool :$all,
+                  Bool :$installed,
+                  Str  :$repoId) {
+ 
+    my @cmd = ( 'repoquery' );
+    push @cmd, '--all' if $all;
+    push @cmd, '--installed' if $installed;
+    push @cmd, '--repoid', $repoId if $repoId;                         	
+
+    my ( $stdout, $stderr, $exit ) =
+      $self->Spawn->capture( cmd => \@cmd, wantArrayRef => 1 );
+    if ($exit) {
+        confess $stderr;
+    }
+    
+    return $stdout;    
+}
 
 #################################################################3
 

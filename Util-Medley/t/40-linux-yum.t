@@ -13,23 +13,30 @@ use vars qw();
 
 use_ok('Util::Medley::Linux::Yum');
 
+my $file    = Util::Medley::File->new;
+
 my $yum = Util::Medley::Linux::Yum->new;
 ok($yum);
 
 SKIP: {
-	my $file    = Util::Medley::File->new;
 	my $yumPath = $file->which('yum');
-
 	skip "can't find yum exe" if !$yumPath;
 
-    doTests($yum);
+    doRepoList($yum);
+}
+
+SKIP: {
+    my $repoqueryPath = $file->which('repoquery');
+    skip "can't find repoquery exe" if !$repoqueryPath;
+
+    doRepoList($yum);
 }
 
 done_testing;
 
 ###################################################
 
-sub doTests {
+sub doRepoList {
     my ($yum) = @_;	
     
     my $aref = $yum->repoList(enabled => 1, disabled => 1);
@@ -40,5 +47,12 @@ sub doTests {
         ok($repo->{repoId});
         ok($repo->{repoStatus});
     }
+}
+
+sub doRepoQuery { 
+    my ($yum) = @_;
+     
+    my $aref = $yum->repoQuery(all => 1);
+    isa_ok($aref, 'ARRAY');
 }
 
