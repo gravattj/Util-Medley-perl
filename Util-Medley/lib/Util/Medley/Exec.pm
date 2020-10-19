@@ -114,6 +114,12 @@ method decryptStr (Str :$str!,
 	say $crypt->decryptStr(%a);
 }
 
+method fileType (Str :$file!) {
+
+    my $util = Util::Medley::File->new;	
+    say $util->fileType($file);
+}
+
 method yamlBeautifyFile (Str :$file!,
                          Int :$sortDepth = 0) {
 

@@ -1,20 +1,20 @@
-package Util::Medley::Roles::Attributes::Linux::Yum;
+package Util::Medley::Roles::Attributes::PkgManager::YUM;
 
 use Modern::Perl;
 use Moose::Role;
-use Util::Medley::Linux::Yum;
+use Util::Medley::PkgManager::YUM;
 
 =head1 NAME
 
-Util::Medley::Roles::Attributes::Linux::Yum
+Util::Medley::Roles::Attributes::PkgManager::YUM
 
 =cut
 
-has LinuxYum => (
+has PkgManagerYum => (
 	is      => 'ro',
-	isa     => 'Util::Medley::Linux::Yum',
+	isa     => 'Util::Medley::PkgManager::YUM',
 	lazy    => 1,
-	default => sub { return Util::Medley::Linux::Yum->new },
+	default => sub { return Util::Medley::PkgManager::YUM->new; }
 );
 
 1;

@@ -292,7 +292,7 @@ multi method fileType (Str :$path!) {
 
 multi method fileType (Str $path) {
 
-	if ( $self->String->is_blank($path) ) {
+	if ( $self->String->isBlank($path) ) {
 		confess "path is empty";
 	}
 

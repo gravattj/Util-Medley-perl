@@ -83,10 +83,16 @@ is 0.
 multi method capture(
 	ArrayRef|Str :$cmd!,
 	ArrayRef|Str :$stdin,
-	        Bool :$wantArrayRef
+	        Bool :$wantArrayRef, 
+	        Bool :$wantArrayRefs # alt
   )
 {
-
+    if (!defined $wantArrayRefs) {
+    	if ($wantArrayRef) {
+            $wantArrayRefs = 1;
+    	}
+    }
+   
 	my $cmdStr;
 	if ( ref($cmd) eq 'ARRAY' ) {
 		$cmdStr = join( ' ', @$cmd );
@@ -115,7 +121,7 @@ multi method capture(
 	chomp $stdout;
 	chomp $stderr;
 
-	if ($wantArrayRef) {
+	if ($wantArrayRefs) {
 		return ( [ split( /\n/, $stdout ) ], [ split( /\n/, $stderr ) ],
 			$exit );
 	}
