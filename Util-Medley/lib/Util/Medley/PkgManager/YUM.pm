@@ -290,6 +290,7 @@ method list (Bool :$installed,
 	push @cmd, 'sudo' if $useSudo;
 	push @cmd, 'yum';
 	push @cmd, '--quiet';
+	push @cmd, '--color', 'never';
 	push @cmd, 'repo-pkgs', $repoId
 	  if $repoId;    # this requires root/sudo for some reason
 	push @cmd, 'list';
@@ -300,28 +301,28 @@ method list (Bool :$installed,
 	if ($exit) {
 		confess $stderr;
 	}
-
-    my @pkgs;
-    foreach my $line (@$stdout) {
-        next if $line =~ /^\w+ packages$/i;
+   
+    my $cleansed  = $self->_cleanseListOutput($stdout);
+   
+    if ($parseOutput) { 
+    	
+        my @parsed;
+        foreach my $line (@$cleansed) {
         
-        if ($parseOutput) {
-            
             my ($rpmName, $version, $repo) = split /\s+/, $line;	
             my $href = {
-            	rpmName => $rpmName,
-            	version => $version,
-            	repo    => $repo
+        	   rpmName => $rpmName,
+        	   version => $version,
+        	   repo    => $repo
             };
             
-            push @pkgs, $href;
+            push @parsed, $line;
         }
-        else {
-            push @pkgs, $line;
-        }
+    
+	    return \@parsed;
     }
     
-	return \@pkgs;
+    return $cleansed;
 }
 
 #################################################################3
@@ -364,6 +365,50 @@ method _repoListParseLine (Str $line) {
 	$value = $self->String->trim($value);
 
 	return ( $key, $value );
+}
+
+#
+# this method removes the header line ("...... packages") and joins 
+# broken lines.
+#
+method _cleanseListOutput (ArrayRef $list) {
+
+    my @clean;
+    my $prev;
+     
+    foreach my $line (@$list) {
+    	
+        next if $line =~ /^\w+ packages$/i;
+        
+        my ($rpmName, $version, $repo) = split /\s+/, $line;    
+        if ($rpmName) {
+            if (defined $version) {
+            	if ($repo) {
+            		# happy path
+                    push @clean, $line;	
+                    next;
+            	}
+            }
+        }         	
+        else {
+        	# join with prev line
+        	my $joined = join '  ', $prev, $self->String->trim($line);
+            $joined =~ s/\s\s+/  /g;	
+            
+   	        my ($rpmName, $version, $repo) = split /\s+/, $joined;
+            if ($rpmName and defined $version and $repo) {
+            	# happy path
+                push @clean, $joined;
+            }    	
+            else {
+                confess "unable to join output lines: $joined";	
+            }
+        }
+        
+        $prev = $line;
+    }	
+    
+    return \@clean;
 }
 
 1;

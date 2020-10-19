@@ -65,8 +65,6 @@ Returns: ArrayRef[Str]
 
 =back
 
-=back
-
 =cut
 
 method queryAll {

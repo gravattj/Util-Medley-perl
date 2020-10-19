@@ -45,7 +45,11 @@ sub doList {
 	my $repoList = $yum->repoList;
 
 	foreach my $repo (@$repoList) {
-		doListByRepo( $yum, $repo );
+		my $list = doListByRepo( $yum, $repo );
+		if ($list and @$list > 0) {
+			pdump $list;
+		  last;  # don't need to test all repos	
+		}
 	}
 }
 
@@ -72,6 +76,7 @@ sub doListByRepo {
 	my $yum  = shift;
 	my $repo = shift;
 
+    my $aref;
 	if ( $UID == 0 ) {
 
 		my %a;
@@ -79,7 +84,7 @@ sub doListByRepo {
 		$a{repoId}    = $repo->{repoId};
 
 		eval {
-			my $aref = $yum->list(%a);
+			$aref = $yum->list(%a);
 			isa_ok( $aref, 'ARRAY' );
 		};
 		ok( !$@ );
@@ -95,12 +100,14 @@ sub doListByRepo {
 			$a{useSudo}   = 1;
 
 			eval {
-				my $aref = $yum->list(%a);
+				$aref = $yum->list(%a);
 				isa_ok( $aref, 'ARRAY' );
 			};
 			ok( !$@ );
 		}
 	}
+	
+	return $aref;
 }
 
 sub doRepoList {
