@@ -25,12 +25,32 @@ SKIP: {
 	skip "can't find rpm exe" if !$path;
 
     doRpmQueryAll($rpm);
+    doRpmQueryAllByName($rpm, getRandomWildcardRpmName($rpm));
     doRpmQueryList($rpm);
 }
 
 done_testing;
 
 ###################################################
+
+sub getRandomWildcardRpmName {
+    my $rpm = shift;
+    
+    my $aref = $rpm->queryAll;
+    my $name = shift @$aref;
+    
+    if ($name =~ /^(\w+)-/) {
+        return sprintf '%s%s', $1, '*';	
+    }
+    
+    die "rpmName: $name doesn't match regex???";
+}
+
+sub getRandomInstalledRpmName {
+    my $rpm;
+    
+    my $aref = $rpm	
+}
 
 sub doRpmQueryList {
     my $rpm = shift;
@@ -50,3 +70,11 @@ sub doRpmQueryAll {
     ok(@$aref > 0); # there should be at least one rpm installed
 }
 
+sub doRpmQueryAllByName {
+    my $rpm = shift;
+    my $name = shift;
+     
+    my $aref = $rpm->queryAll($name);
+    ok(ref($aref) eq 'ARRAY');
+    ok(@$aref > 0); # there should be at least one rpm installed
+}

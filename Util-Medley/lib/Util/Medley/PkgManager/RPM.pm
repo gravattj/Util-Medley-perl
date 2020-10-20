@@ -23,12 +23,13 @@ Util::Medley::PkgManager::RPM - Class for interacting with RPM
   #
   # positional  
   #
-  $aref = $rpm->queryAll;
+  $aref = $yum->queryAll([$rpmName]);
   $aref = $rpm->queryList($rpmName);
                         
   #
   # named pair
   #
+  $aref = $yum->queryAll([rpmName => $rpmName]);
   $aref = $rpm->queryList(rpmName => $rpmName);
 
 =cut
@@ -59,27 +60,46 @@ Returns: ArrayRef[Str]
 
 =item usage:
 
- $aref = $yum->queryAll;
+ $aref = $yum->queryAll([$rpmName]);
+ $aref = $yum->queryAll([rpmName => $rpmName]);
  
-=item args: None
+=item args:
+
+=over
+
+=item rpmName [Str] (optional)
+
+The name of the rpm package to query.  This arg can contain wildcards.
+
+=back
 
 =back
 
 =cut
 
-method queryAll {
+multi method queryAll (Str :$rpmName) {
 
     my @cmd;
     push @cmd, 'rpm';
     push @cmd, '--query';
     push @cmd, '--all';
+    push @cmd, $rpmName if $rpmName;
     
-    my ($stdout, $stderr, $exit) = $self->Spawn->capture(cmd => \@cmd, wantArrayRef => 1);
+    my ($stdout, $stderr, $exit) = 
+        $self->Spawn->capture(cmd => \@cmd, wantArrayRef => 1);
     if ($exit) {
         confess $stderr;    
     } 
     
     return $stdout;
+}
+
+multi method queryAll (Str $rpmName?) {
+
+    my %a;
+    $a{rpmName} = $rpmName if $rpmName;
+    
+    return $self->queryAll(%a);
 }
 
 =head2 queryList

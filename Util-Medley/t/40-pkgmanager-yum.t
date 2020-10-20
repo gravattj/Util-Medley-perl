@@ -47,7 +47,6 @@ sub doList {
 	foreach my $repo (@$repoList) {
 		my $list = doListByRepo( $yum, $repo );
 		if ($list and @$list > 0) {
-			pdump $list;
 		  last;  # don't need to test all repos	
 		}
 	}
