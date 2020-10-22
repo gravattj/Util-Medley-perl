@@ -13,6 +13,7 @@ use Text::ASCIITable;
 use Text::Table;
 
 with 
+    'Util::Medley::Roles::Attributes::File',
     'Util::Medley::Roles::Attributes::Logger',
     'Util::Medley::Roles::Attributes::String',
     'Util::Medley::Roles::Attributes::List';
@@ -120,6 +121,40 @@ method fileType (Str :$file!) {
     say $util->fileType($file);
 }
 
+method snakeizeInPlace (Str  :$string!,
+                        Str  :$file,
+                        Bool :$useStdin) {
+
+    my @content;
+    if ($useStdin) {
+        while(<STDIN>) {
+            push @content, $_;	
+        }	
+    }
+    else {
+    	@content = $self->File->read(path => $file);
+    }                        	
+   
+    my $stringSnakeized = $self->String->snakeize($string); 
+    my @output;
+     
+    foreach my $line (@content) {
+   
+        my $copy = $line; 
+        $copy =~ s/$string/$stringSnakeized/g;
+        push @output, $copy;
+    }
+    
+    if ($useStdin) {
+    	foreach my $line (@output) {
+    	   print $line;	
+    	}
+    }
+    else {
+        $self->File->write(path => $file, content => \@output);	
+    }
+}
+                        
 method yamlBeautifyFile (Str :$file!,
                          Int :$sortDepth = 0) {
 
