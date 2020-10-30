@@ -9,6 +9,7 @@ with
   'Util::Medley::Roles::Attributes::DateTime',
   'Util::Medley::Roles::Attributes::File',
   'Util::Medley::Roles::Attributes::File::Zip',
+  'Util::Medley::Roles::Attributes::Hash',
   'Util::Medley::Roles::Attributes::Hostname',
   'Util::Medley::Roles::Attributes::List',
   'Util::Medley::Roles::Attributes::Logger',
