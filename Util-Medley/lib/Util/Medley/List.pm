@@ -254,6 +254,48 @@ multi method differ (ArrayRef $list1,
 	return $self->differ(list1 => $list1, list2 => $list2, sort => $sort);
 }
 
+=head2 isArray
+
+Checks if the scalar value passed in is an array.
+
+=over
+
+=item usage:
+
+  $bool = $util->isArray(\@a);
+
+  $bool = $util->listToMap(ref => \@a);
+   
+=item args:
+
+=over
+
+=item ref [Any]
+
+The scalar value you wish to check.
+
+=back
+
+=back
+ 
+=cut
+
+multi method isArray (Any :$ref!) {
+    
+    if (defined $ref) {
+        if (ref($ref) eq 'ARRAY') {
+            return 1;	
+        }	
+    }	
+    
+    return 0;
+}
+
+multi method isArray (Any $ref!) {
+    
+    return $self->isArray(ref => $ref);	
+}
+
 =head2 listToMap
 
 =over
