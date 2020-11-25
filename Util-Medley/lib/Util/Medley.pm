@@ -11,10 +11,10 @@ with
   'Util::Medley::Roles::Attributes::File::Zip',
   'Util::Medley::Roles::Attributes::Hash',
   'Util::Medley::Roles::Attributes::Hostname',
+  'Util::Medley::Roles::Attributes::Linux::PkgMgmt::RPM',
+  'Util::Medley::Roles::Attributes::Linux::PkgMgmt::YUM',
   'Util::Medley::Roles::Attributes::List',
   'Util::Medley::Roles::Attributes::Logger',
-  'Util::Medley::Roles::Attributes::PkgManager::RPM',
-  'Util::Medley::Roles::Attributes::PkgManager::YUM',
   'Util::Medley::Roles::Attributes::Spawn',
   'Util::Medley::Roles::Attributes::String',
   'Util::Medley::Roles::Attributes::XML';
@@ -63,6 +63,10 @@ interface to commonly used modules all under one roof.
 =item L<Util::Medley::File>
 
 =item L<Util::Medley::File::Zip>
+
+=item L<Util::Medley::Linux::PkgMgmt::RPM>
+
+=item L<Util::Medley::Linux::PkgMgmt::YUM>
 
 =item L<Util::Medley::List>
 

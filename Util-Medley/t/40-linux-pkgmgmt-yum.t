@@ -13,11 +13,11 @@ use vars qw();
 
 ###################################################
 
-use_ok('Util::Medley::PkgManager::YUM');
+use_ok('Util::Medley::Linux::PkgMgmt::YUM');
 
 my $file = Util::Medley::File->new;
 
-my $yum = Util::Medley::PkgManager::YUM->new;
+my $yum = Util::Medley::Linux::PkgMgmt::YUM->new;
 ok($yum);
 
 SKIP: {

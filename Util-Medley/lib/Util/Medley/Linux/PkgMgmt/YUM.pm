@@ -1,4 +1,4 @@
-package Util::Medley::PkgManager::YUM;
+package Util::Medley::Linux::PkgMgmt::YUM;
 
 use Modern::Perl;
 use Moose;
@@ -13,7 +13,7 @@ with
 
 =head1 NAME
 
-Util::Medley::PkgManager::YUM - Class for interacting with YUM
+Util::Medley::Linux::PkgMgmt::YUM - Class for interacting with YUM
 
 =cut
 

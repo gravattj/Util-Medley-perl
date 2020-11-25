@@ -13,11 +13,11 @@ use vars qw();
 
 ###################################################
 
-use_ok('Util::Medley::PkgManager::RPM');
+use_ok('Util::Medley::Linux::PkgMgmt::RPM');
 
 my $file = Util::Medley::File->new;
 
-my $rpm = Util::Medley::PkgManager::RPM->new;
+my $rpm = Util::Medley::Linux::PkgMgmt::RPM->new;
 ok($rpm);
 
 SKIP: {

@@ -1,4 +1,4 @@
-package Util::Medley::PkgManager::RPM;
+package Util::Medley::Linux::PkgMgmt::RPM;
 
 use Modern::Perl;
 use Moose;
@@ -12,13 +12,13 @@ with
 
 =head1 NAME
 
-Util::Medley::PkgManager::RPM - Class for interacting with RPM
+Util::Medley::Linux::PkgMgmt::RPM - Class for interacting with RPM
 
 =cut
 
 =head1 SYNOPSIS
 
-  my $rpm = Util::Medley::PkgManager::RPM->new;
+  my $rpm = Util::Medley::Linux::PkgMgmt::RPM->new;
   
   #
   # positional  
