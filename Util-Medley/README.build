@@ -2,7 +2,8 @@ To perform a release, do the following:
 
 1. ./autogen.pl (if necessary)
 2. update version in dist.ini
-3. dzil release  (versions will be stamped to all the pm files for you)
+3. git commit
+4. dzil release  (versions will be stamped to all the pm files for you)
 
 To generate coverage:
 
