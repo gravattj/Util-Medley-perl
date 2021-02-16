@@ -15,7 +15,9 @@ with
   'Util::Medley::Roles::Attributes::Logger',
   'Util::Medley::Roles::Attributes::Spawn',
   'Util::Medley::Roles::Attributes::String',
-  'Util::Medley::Roles::Attributes::XML';
+  'Util::Medley::Roles::Attributes::XML',
+  'Util::Medley::Roles::Attributes::YAML',
+  ;
 
 =head1 NAME
 

@@ -31,11 +31,18 @@ error.
 
 =cut
 
+has _xmlLintExists => (
+    is => 'ro',
+    isa => 'Bool',
+    lazy => 1,
+    builder => '_buildXmlLintExists',
+);
+
 ########################################################
 
 =head1 METHODS
 
-=head2 xmlBeautifyFile
+=head2 beautifyFile
 
 Beautifies an XML file.  Requires the xmllint command.
 
@@ -43,9 +50,9 @@ Beautifies an XML file.  Requires the xmllint command.
 
 =item usage:
 
- $util->xmlBeautifyFile($path);
+ $util->beautifyFile($path);
 
- $util->xmlBeautifyFile(path => $path);
+ $util->beautifyFile(path => $path);
  
 =item args:
 
@@ -61,19 +68,35 @@ Location of the xml file.
 
 =cut
 
-multi method xmlBeautifyFile (Str :$path!) {
+multi method beautifyFile (Str :$path!) {
 
+    if (!$self->_xmlLintExists) {
+        confess "unable to find xmllint cmd";
+    }
+    
 	my $cmd = "xmllint --format $path > $path.tmp";
 	$self->Spawn->spawn( cmd => $cmd );
 	$self->File->mv( "$path.tmp", $path );
 }
 
-multi method xmlBeautifyFile (Str $path) {
+multi method beautifyFile (Str $path) {
 
 	$self->xmllBeautifyFile(path => $path);
 }
 
-=head2 xmlBeautifyString
+# deprecated method
+multi method xmlBeautifyFile (Str :$path!) {
+   
+    return $self->beautifyFile(@_);
+}
+
+# deprecated method
+multi method xmlBeautifyFile (Str $path) {
+    
+    return $self->beautifyFile(@_);
+}
+
+=head2 beautifyString
 
 Formats an XML string.  Requires the xmllint command.
 
@@ -81,7 +104,7 @@ Formats an XML string.  Requires the xmllint command.
 
 =item usage:
 
- $util->xmlBeautifyString($xml);
+ $util->beautifyString($xml);
 
  $util->XmlBeautifyString(xml => $xml);
  
@@ -99,8 +122,12 @@ An XML string.
 
 =cut
 
-multi method xmlBeautifyString (Str :$xml!) {
+multi method beautifyString (Str :$xml!) {
 
+    if (!$self->_xmlLintExists) {
+        confess "unable to find xmllint cmd";
+    }
+    
 	my @cmd = ( 'xmllint', '--format', '-' );
 	my ( $stdout, $stderr, $exit ) =
 	  $self->Spawn->capture( cmd => \@cmd, stdin => $xml );
@@ -108,11 +135,33 @@ multi method xmlBeautifyString (Str :$xml!) {
 	return $stdout;
 }
 
-multi method xmlBeautifyString (Str $xml) {
+multi method beautifyString (Str $xml) {
 
-	return $self->xmlBeautifyString(xml => $xml);
+	return $self->beautifyString(xml => $xml);
+}
+           
+# deprecated method            
+multi method xmlBeautifyString (Str :$xml!) {
+    
+    return $self->beautifyString(@_); 
+}
+
+# deprecated method
+multi method xmlBeautifyString (Str $xml) {
+    
+    return $self->beautifyString(@_);
 }
                 	  
 ######################################################################
+
+method _buildXmlLintExists {
+
+    my $path = $self->File->which('xmllint');        
+    if ($path) {
+        return 1;    
+    }    
+    
+    return 0;
+}
 
 1;
