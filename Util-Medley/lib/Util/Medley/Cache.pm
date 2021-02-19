@@ -297,7 +297,7 @@ multi method delete (Str :$key!,
                		 Str :$ns) {
 
 	$self->_l1Delete(@_) if $self->l1Enabled;
-	$self->_l2Delete(@_) if $self->l1Enabled;
+	$self->_l2Delete(@_) if $self->l2Enabled;
 
 	return 1;
 }
