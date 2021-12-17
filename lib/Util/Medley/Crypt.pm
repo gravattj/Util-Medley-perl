@@ -119,7 +119,7 @@ multi method decryptStr (Str :$str!,
 
 	$key = $self->_getKey($key);
 	
-    my $cipher = Crypt::CBC->new(-key => $key, -cipher => 'Blowfish');
+    my $cipher = Crypt::CBC->new(-key => $key, -cipher => 'Blowfish', -pbkdf => 'pbkdf2');
     return $cipher->decrypt_hex($str);
 }
 
@@ -171,7 +171,7 @@ multi method encryptStr (Str :$str!,
 
 	$key = $self->_getKey($key);
     
-    my $cipher = Crypt::CBC->new(-key => $key, -cipher => 'Blowfish');
+    my $cipher = Crypt::CBC->new(-key => $key, -cipher => 'Blowfish', -pbkdf => 'pbkdf2');
     return $cipher->encrypt_hex($str);
 }
 

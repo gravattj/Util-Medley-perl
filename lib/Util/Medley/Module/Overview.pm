@@ -137,6 +137,7 @@ has _inheritedMethodsAndAttributes => (
 has _moduleOverview => (
 	is      => 'ro',
 	isa     => 'HashRef',
+    lazy => 1,
 	builder => '_buildModuleOverview',
 );
 
