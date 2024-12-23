@@ -432,7 +432,7 @@ multi method nsort (ArrayRef :$list!) {
 		else {
 			# Consume the string.
 			while ( length $x ) {
-				push @bit, ( $x =~ s/^(\D+)//s ) ? fc($1) : '';
+				push @bit, ( $x =~ s/^(\D+)//s ) ? CORE::fc($1) : '';
 				push @bit, ( $x =~ s/^(\d+)//s ) ? $1     : 0;
 			}
 		}

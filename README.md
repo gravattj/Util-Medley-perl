@@ -4,7 +4,7 @@ Util::Medley - A collection of commonly used utilities.
 
 # VERSION
 
-version 0.061
+version 0.062
 
 # SYNOPSIS
 
